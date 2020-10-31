@@ -1,0 +1,27 @@
+body {
+    background-color: #999;
+}
+
+#background-canvas {
+
+}
+
+canvas {
+    border:1px solid #000000;
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.canvas-container {
+    position: relative;
+    display: grid;
+}
+
+.reset-container {
+    text-align: center;
+    margin: auto; 
+}
+
+#reset {
+    margin: auto;
+}
