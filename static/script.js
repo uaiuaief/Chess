@@ -11,55 +11,66 @@ let game_variables = {
 
 class Screen {
     constructor() {
-        this.drawBackground();
+        // this.drawBackground();
     }
 
-    // async getPieces(){
-    //     let piece_list = [];
-    //     let res_clone = await board_promise;
+    async getPieces() {
+        let piece_list = [];
+        let res = await board_state;
+        let clone = res.clone();
+        let data = await clone.json();
 
-    //     data.map(each => {
-    //         piece_list.push(new Piece(each.name, each.color, [each.x, each.y]))            
-    //     })
+        data.map(each => {
+            piece_list.push(new Piece(each.name, each.color, [each.x, each.y]))
+        })
 
-    //     return piece_list;
-    // }
+        return piece_list;
+    }
 
-    // async findPiece(i, j){
-    //     let piece_list = await this.getPieces();
-    //     let piece;
-    //     piece_list.some(each => {
-    //         let same_row = (each.x == i);
-    //         let same_column = (each.y == j);
-    //         if (same_row && same_column){
-    //             return piece;
-    //         }
-    //     })
-    // }
+    async findPiece(i, j) {
+        let piece_list = await this.getPieces();
+        let piece = null;
+        piece_list.some(each => {
+            let same_row = (each.i == i);
+            let same_column = (each.j == j);
 
-    async drawBoard() {
+            if (same_row && same_column) {
+                piece = each;
+                return
+            }
+        })
+        return piece;
+    }
+
+    clearScreen() {
         ctx.clearRect(0, 0, width, height)
-        // this.drawSquares();
+    }
+
+    drawBoard() {
+        this.clearScreen();
         this.highlightSquare();
-        this.drawAllPieces();
-        // this.drawNumbers();
-        // this.drawLetters();
+        // this.drawAllPieces();
         this.showPossibleMoves();
 
-        // this._dragPiece()
+        this._dragPiece();
 
+        requestAnimationFrame(async () => {
+            screen.drawBoard()
+        })
     }
 
-    drawBackground(){
+    drawBackground() {
         this.drawSquares();
         this.drawNumbers();
         this.drawLetters();
+        this._drawAllPieces();
     }
 
     async drawAllPieces() {
-        let res = await board_promise;
-        let data = await res.json();
-        
+        let res = await board_state;
+        let clone = res.clone();
+        let data = await clone.json();
+
         data.map((each) => this.drawPiece(each))
     }
 
@@ -67,40 +78,42 @@ class Screen {
         let posX = piece.x * basis
         let posY = piece.y * basis
         ctx.drawImage(sprite_list[`${piece.color}_${piece.name}`], posX, posY)
+
     }
 
+    // TODO
+    _dragPiece() {
+        if (game_variables['dragged_piece']) {
+            let [i, j] = game_variables['dragged_piece'];
+            let piece = board._getPiece(i, j)
+
+            if (piece && game_variables['mouse_position']) {
+                piece.context = ctx;
+                // piece.draw = false;
+                let [x, y] = game_variables['mouse_position'];
+                piece.context.drawImage(sprite_list[piece.sprite], x - 40, y - 40)
+                piece.context = bg_ctx;
+            }
+        }
+    }
+
+    async _drawAllPieces() {
+        // await board.loadPieces()
+        board.pieces.map(each => {
+            if (each.draw) {
+                // console.log(each);
+                this._drawPiece(each)
+            }
 
 
-// TODO
+        })
+    }
 
-    //  async _dragPiece() {
-    //     if (game_variables['selected_square']){
-    //         let [i, j] = game_variables['selected_square'];
-    //         let piece = await this.findPiece(i, j)
-    //         console.log(piece);
-
-    //         // if (game_variables['mouse_position']) {
-    //         //     let [x, y] = game_variables['mouse_position'];
-    //         //     piece.context.drawImage(sprite_list[`${piece.color}_${piece.name}`], x, y)
-    //         //     // ctx.fillStyle = "red";
-    //         //     // ctx.fillRect(x, y, 80, 80);
-
-    //         // }
-    //     }
-    // }
-
-    // async _drawAllPieces() {
-    //     let pieces = await this.getPieces();
-    //     pieces.map(each => this._drawPiece(each))
-
-    // }
-
-    // _drawPiece(piece) {
-    //     let posX = piece.x * basis
-    //     let posY = piece.y * basis
-    //     piece.context.drawImage(sprite_list[`${piece.color}_${piece.name}`], posX, posY)
-    // }
-
+    _drawPiece(piece) {
+        let posX = piece.i * basis
+        let posY = piece.j * basis
+        piece.context.drawImage(sprite_list[`${piece.color}_${piece.name}`], posX, posY)
+    }
 
 
 
@@ -172,14 +185,15 @@ class Screen {
 
     }
 
-    async showPossibleMoves() {
+    showPossibleMoves() {
         let selected_square = game_variables['selected_square'];
         if (selected_square) {
-            let piece = await getPiece(selected_square[0], selected_square[1])
-            let moves = piece.moves;
+            let [i, j] = [selected_square[0], selected_square[1]]
+            let piece = board._getPiece(i, j)
+            let moves = piece.possible_moves;
             if (moves) {
-                moves.map(async move => {
-                    let enemy_piece = await getPiece(move.x, move.y);
+                moves.map(move => {
+                    let enemy_piece = board._getPiece(move.x, move.y);
                     if (enemy_piece) {
                         this.drawCaptureSquare(move.x, move.y)
                     }
@@ -210,30 +224,30 @@ class Controller {
         this.second_click = null;
     }
 
-    async setClickOne(i, j){
+    async setClickOne(i, j) {
         this.first_click = [i, j];
     }
 
-    async setClickTwo(i, j){
+    async setClickTwo(i, j) {
         this.second_click = [i, j];
     }
     // REFACTOR ********************************************
-    async updateGameVariables(i, j){
+    async updateGameVariables(i, j) {
         let piece = await getPiece(i, j);
 
-        if (piece && this.first_click == null){
+        if (piece && this.first_click == null) {
             this.setClickOne(i, j);
         }
         else if (this.first_click != null) {
             this.setClickTwo(i, j);
-            
+
             let [ox, oy] = this.first_click;
             let [tx, ty] = this.second_click;
 
-            if (await canMove(ox, oy, tx ,ty)){
+            if (await canMove(ox, oy, tx, ty)) {
                 this.move(ox, oy, tx, ty);
             }
-            else if(piece){
+            else if (piece) {
                 this.first_click = this.second_click = null;
                 this.setClickOne(i, j);
             }
@@ -243,47 +257,64 @@ class Controller {
                 screen.drawBoard();
             }
         }
-        else{
+        else {
             // console.log('do nothing');
         }
     }
 
-    async mouseUp(e) { 
+    async mouseUp(e) {
         let [ox, oy] = [moveRequest['originx'], moveRequest['originy']]
         let [i, j] = this.getMousePosition(canvasElem, e)
 
         if (await canMove(ox, oy, i, j)) {
-            // moveRequest['targetx'] = i
-            // moveRequest['targety'] = j
             this.move(ox, oy, i, j)
         }
-        else if (ox != i || oy != j){
+        else if (ox != i || oy != j) {
             game_variables['selected_square'] = null;
-            screen.drawBoard();
+            board.drawAllTrue();
+            screen.drawBackground();
+        }
+        else{
+            board.drawAllTrue();
+            screen.drawBackground();
         }
 
+
+        game_variables['dragged_piece'] = null;
+        // game_variables['selected_square'] = null;
         $(window).off('mouseup')
-        // $(window).off('mousemove')
+        $(window).off('mousemove')
 
     }
-    
+
     async mouseDown(e) {
         let [i, j] = this.getMousePosition(canvasElem, e)
+        let [x, y] = this.getMouseCoord(canvasElem, e)
         let piece = await getPiece(i, j)
+        game_variables['mouse_position'] = [Math.floor(x), Math.floor(y)];
 
         if (piece) {
             game_variables['selected_square'] = [i, j];
-            // getBoard()
-            screen.drawBoard()
+            game_variables['dragged_piece'] = [i, j];
+
             moveRequest['originx'] = i
             moveRequest['originy'] = j
 
+
+            let selected_piece = board._getPiece(i, j)
+            selected_piece.draw = false;
+            // console.log(testpiece);
+            screen.drawBackground();
+
+
             $(window).on('mouseup', e => this.mouseUp(e))
-            // $(window).on('mousemove', e => this.drag(e)) 
-        
+            $(window).on('mousemove', e => this.drag(e))
+
+
         }
+        // screen.drawBackground();
         this.updateGameVariables(i, j).then(() => {
-            // console.log(this.first_click, ' - ', this.second_click);
+        // console.log(this.first_click, ' - ', this.second_click);
         })
         // piece = await getPiece(i, j);
         // console.log(i, j);
@@ -298,7 +329,7 @@ class Controller {
         let j = Math.floor(y / basis);
         return [i, j]
     }
-    
+
     getMouseCoord(canvas, event) {
         let rect = canvas.getBoundingClientRect();
         let x = event.clientX - rect.left;
@@ -306,13 +337,14 @@ class Controller {
 
         return [x, y]
     }
-    
+
     async move(ox, oy, tx, ty) {
         let url = `
                 /api/move?originx=${ox}&originy=${oy}&targetx=${tx}&targety=${ty}
         `
         $.getJSON(url)
         game_variables['selected_square'] = null;
+        game_variables['dragged_piece'] = null;
         getBoard()
 
         this.first_click = this.second_click = null
@@ -321,25 +353,60 @@ class Controller {
 
     drag(e) {
         let [x, y] = this.getMouseCoord(canvas, e);
+        let [i, j] = this.getMousePosition(canvas, e);
         game_variables['mouse_position'] = [Math.floor(x), Math.floor(y)];
-        // $(element).on('mousedown')
     }
 
 
 }
 
+class Board {
+    constructor() {
+        this.pieces = [];
+    }
+
+    async loadPieces() {
+        let new_array = [];
+        let res = await board_state;
+        let clone = res.clone()
+        let data = await clone.json();
+
+        data.map(each => {
+            new_array.push(new Piece(each.name, each.color, [each.x, each.y], each.moves))
+            // console.log(each);
+        })
+        this.pieces = new_array;
+    }
+
+    _getPiece(i, j) {
+        let piece = this.pieces.filter(each => {
+            return (each.i == i && each.j == j)
+        })
+        if (piece) {
+            return piece[0]
+        }
+        else {
+            return false
+        }
+    }
+
+    drawAllTrue(){
+        this.pieces.forEach(piece => {
+            piece.draw = true;
+        })
+    }
+}
 
 class Piece {
-    constructor(name, color, position){
+    constructor(name, color, position, moves) {
+        this.draw = true;
+        this.drag = false;
         this.name = name;
         this.color = color;
         [this.i, this.j] = position;
         this.context = bg_ctx;
-    }
-
-    getSprite(){
-        let sprite = `static/icons/${this.color}_${this.name}.svg`
-        return sprite
+        this.sprite = `${color}_${name}`;
+        this.possible_moves = moves;
     }
 }
 
@@ -353,34 +420,45 @@ const basis = 80;
 const width = 90 * 8;
 const height = 90 * 8;
 
+async function loadEverything() {
 
-let board_promise = fetch('/api/GET/board');
-board_promise.then(res => {
-    response = res;
-    console.log(response);
-})
+    board_state = fetch('/api/GET/board')
+    board = new Board();
+    screen = new Screen();
+    controller = new Controller();
+    canvasElem = document.querySelector("canvas");
+    moveRequest = {}
+
+    sprite_list = loadSprites()
+
+}
+
+loadEverything().then(() => getBoard())
 
 
-let screen = new Screen();
-let controller = new Controller();
-let canvasElem = document.querySelector("canvas");
-let moveRequest = {}
+
+// console.log(board.pieces);
+
+
+let test_sp = new Image()
+test_sp.src = '/static/icons/black_pawn.svg'
+
+
+
 
 
 $('canvas').on('mousedown', (e) => controller.mouseDown(e))
 
 async function getBoard() {
-    board_promise = fetch('/api/GET/board');
-    response = await board_promise;
-    // console.log(response);
-    screen.drawBoard();
+    board_state = await fetch('/api/GET/board');
+    await board.loadPieces();
+    // screen.drawBoard();
+    screen.drawBackground();
 
-    // json = $.getJSON('/api/GET/board', () => {
-    //     screen.drawBoard()
-    // })
+
+    // bg_ctx.fillStyle = 'black'
+    // bg_ctx.fillRect(200,200,50,50)
 }
-
-getBoard()
 
 
 function loadSprites() {
@@ -399,7 +477,6 @@ function loadSprites() {
     return sprite_list
 }
 
-let sprite_list = loadSprites()
 
 
 async function canMove(ox, oy, tx, ty) {
@@ -407,7 +484,7 @@ async function canMove(ox, oy, tx, ty) {
     let piece = await getPiece(ox, oy)
 
     // console.log('can move', ox, oy, tx ,ty);
-    if (piece){
+    if (piece) {
         piece.moves.some(move => {
             if (move.x == tx && move.y == ty) {
                 canMove = true;
@@ -418,10 +495,10 @@ async function canMove(ox, oy, tx, ty) {
 }
 
 async function getPiece(x, y) {
-    let response = await board_promise;
-    let data = await response.json();
+    let res = await board_state;
+    let clone = res.clone()
+    let data = await clone.json();
     let piece_list = data;
-
 
     let piece_exists = false
     piece_list.some(piece => {
@@ -434,7 +511,7 @@ async function getPiece(x, y) {
 }
 
 
-function resetBoard(){
+function resetBoard() {
     fetch('/api/reset').then(() => {
         getBoard();
     })
@@ -442,38 +519,16 @@ function resetBoard(){
 
 $('#reset').on('click', () => resetBoard())
 
+
 // setInterval(() => {
-//     screen.drawBoard()
-// }, 10);
+requestAnimationFrame(() => {
+    console.log('first');
+    screen.drawBoard()
+})
+// }, 16);
 
 // https://www.pngwave.com/png-clip-art-dtqzc
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// XD XD XD
-// Response.json: Body has already been consumed.
-// Response.json: Body has already been consumed.
-// Response.json: Body has already been consumed.
-// Response.json: Body has already been consumed.
-// Response.json: Body has already been consumed.
-// Response.json: Body has already been consumed.
-// Response.json: Body has already been consumed.
