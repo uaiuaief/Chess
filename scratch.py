@@ -1,4 +1,5 @@
 
+a = {'a': 2, 'b': 3}
 
-for i in range(1, 8):
-    print(i)
+if 'b' in a:
+    print('a')

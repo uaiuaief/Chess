@@ -3,9 +3,10 @@ let game_variables = {
     'click_one': null,
     'click_two': null,
     'mouse_position': null,
+    'mouse_index': null,
     'dragged_piece': null,
     'reponse': null,
-
+    'color': null
 }
 
 
@@ -13,35 +14,7 @@ class Screen {
     constructor() {
         // this.drawBackground();
     }
-
-    async getPieces() {
-        let piece_list = [];
-        let res = await board_state;
-        let clone = res.clone();
-        let data = await clone.json();
-
-        data.map(each => {
-            piece_list.push(new Piece(each.name, each.color, [each.x, each.y]))
-        })
-
-        return piece_list;
-    }
-
-    async findPiece(i, j) {
-        let piece_list = await this.getPieces();
-        let piece = null;
-        piece_list.some(each => {
-            let same_row = (each.i == i);
-            let same_column = (each.j == j);
-
-            if (same_row && same_column) {
-                piece = each;
-                return
-            }
-        })
-        return piece;
-    }
-
+   
     clearScreen() {
         ctx.clearRect(0, 0, width, height)
     }
@@ -49,10 +22,12 @@ class Screen {
     drawBoard() {
         this.clearScreen();
         this.highlightSquare();
+        this.drawRectangle();
         // this.drawAllPieces();
         this.showPossibleMoves();
-
         this._dragPiece();
+
+        // console.log(game_variables['mouse_index']);
 
         requestAnimationFrame(async () => {
             screen.drawBoard()
@@ -64,6 +39,7 @@ class Screen {
         this.drawNumbers();
         this.drawLetters();
         this._drawAllPieces();
+
     }
 
     async drawAllPieces() {
@@ -112,7 +88,7 @@ class Screen {
     _drawPiece(piece) {
         let posX = piece.i * basis
         let posY = piece.j * basis
-        piece.context.drawImage(sprite_list[`${piece.color}_${piece.name}`], posX, posY)
+        piece.context.drawImage(sprite_list[`${piece.color}_${piece.name}`], posX+7 , posY+4)
     }
 
 
@@ -191,7 +167,7 @@ class Screen {
             let [i, j] = [selected_square[0], selected_square[1]]
             let piece = board._getPiece(i, j)
             let moves = piece.possible_moves;
-            if (moves) {
+            if (moves && piece.color == game_variables['color']) {
                 moves.map(move => {
                     let enemy_piece = board._getPiece(move.x, move.y);
                     if (enemy_piece) {
@@ -212,6 +188,19 @@ class Screen {
             ctx.fillStyle = 'rgba(248, 252, 45, .6)'
             let [x, y] = [i * basis, j * basis];
             ctx.fillRect(x, y, basis, basis);
+        }
+    }
+
+    drawRectangle() {
+        let [i, j] = game_variables['mouse_index'] ? game_variables['mouse_index'] : [null, null]
+        let piece = board._getPiece(i, j); 
+        if (game_variables['mouse_index'] && piece) {
+            let [i, j] = game_variables['mouse_index'];
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = '3';
+            ctx.beginPath();
+            ctx.rect(i * basis, j * basis, basis, basis);
+            ctx.stroke();
         }
     }
 
@@ -271,6 +260,7 @@ class Controller {
         }
         else if (ox != i || oy != j) {
             game_variables['selected_square'] = null;
+            this.first_click = this.second_click = null;
             board.drawAllTrue();
             screen.drawBackground();
         }
@@ -357,6 +347,9 @@ class Controller {
         game_variables['mouse_position'] = [Math.floor(x), Math.floor(y)];
     }
 
+    mouseMove(e){
+        game_variables['mouse_index'] = this.getMousePosition(canvas, e);
+    }
 
 }
 
@@ -411,7 +404,6 @@ class Piece {
 }
 
 
-
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const bg_canvas = document.getElementById("background-canvas")
@@ -428,6 +420,10 @@ async function loadEverything() {
     controller = new Controller();
     canvasElem = document.querySelector("canvas");
     moveRequest = {}
+    fetch('/api/GET/color')
+    .then(res => {
+        res.text().then(color => game_variables['color'] = color)
+    })
 
     sprite_list = loadSprites()
 
@@ -437,17 +433,9 @@ loadEverything().then(() => getBoard())
 
 
 
-// console.log(board.pieces);
-
-
-let test_sp = new Image()
-test_sp.src = '/static/icons/black_pawn.svg'
-
-
-
-
 
 $('canvas').on('mousedown', (e) => controller.mouseDown(e))
+$('canvas').on('mousemove', (e) => controller.mouseMove(e))
 
 async function getBoard() {
     board_state = await fetch('/api/GET/board');
@@ -518,14 +506,38 @@ function resetBoard() {
 }
 
 $('#reset').on('click', () => resetBoard())
-
-
-// setInterval(() => {
-requestAnimationFrame(() => {
-    console.log('first');
-    screen.drawBoard()
+$('.restart').on('click', () => {
+    resetBoard()
+    $('#check-mate').hide();
 })
-// }, 16);
+
+let turn_count = 1
+function detectChanges(){
+    fetch(`/api/changes`)
+    .then((res) => res.json()
+    .then(data => {
+        if (turn_count != data.turn_count){
+            turn_count = data.turn_count;
+            getBoard();
+        }
+        if (data.check_mate == true) {
+            $('.winner').text(`${data.winner} wins`)
+            $('#check-mate').show();
+            
+        }
+
+    }))
+}
+
+
+setInterval(() => {
+    detectChanges(turn_count)
+}, 1000);
+
+requestAnimationFrame(() => {
+    screen.drawBoard()
+
+})
 
 // https://www.pngwave.com/png-clip-art-dtqzc
 
