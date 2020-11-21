@@ -1,0 +1,26 @@
+[
+    {
+        "basis": 80,
+        "light_square": "#eeeed4",
+        "dark_square": "#6d945d",
+        "small_circle": {
+            "fill_style": "rgba(0, 0, 0, .2)"
+        },
+        "background_ctx": {
+            "font": "bold 17px Arial"
+        },
+        "capture_square": {
+            "stroke_style": "rgba(254, 0, 0, .5)",
+            "line_width": "3"
+        },
+        "highlighted_square": {
+            "fill_style": "rgba(248, 252, 45, .6)"
+        },
+        "hover_square": {
+           "stroke_style" : "#666",
+           "line_width" : "3"
+        }
+        
+        
+    }
+]

@@ -32,22 +32,10 @@ class Piece:
             return False
 
     def get_move_intersection(self, self_moves, enemy_moves):
-        intersection = [m for m in self_moves if m in enemy_moves]
+        intersection = []
+        if self_moves and enemy_moves:
+            intersection = [m for m in self_moves if m in enemy_moves]
         return intersection
-
-    def _is_defending(self):
-        pass
-    # def simulate(self, x, y):
-    #     old_pos = [self.x, self.y]
-    #     self.x, self.y = x, y
-    #
-    #     king = self.board.king[self.COLOR]
-    #     if king.is_in_check():
-    #         self.x, self.y = old_pos
-    #         return False
-    #     else:
-    #         self.x, self.y = old_pos
-    #         return True
 
     def square_is_attacked(self, x, y):
         ghost_piece = Ghost(self.COLOR, x, y, self.board)
@@ -204,6 +192,7 @@ class Pawn(Piece):
         self.moves = None
         self.attacker = None
         self.blocking_moves = None
+        self.promotion = None
 
     def move(self, x, y):
         self.first_move = False
@@ -221,6 +210,12 @@ class Pawn(Piece):
 
         self.x = x
         self.y = y
+
+        if self.y in [0, 7]:
+            if not self.promotion:
+                raise ValueError("no promotion was chosen")
+            else:
+                self.board.promote_pawn(self.x, self.y, self.promotion)
 
     def _capture_en_passant(self, x, y):
         one = 1 if self.COLOR == 'white' else -1
@@ -304,16 +299,15 @@ class Rook(Piece):
         self.already_moved = True
 
     def get_moves(self):
-
         up = self._upward_movement()
         down = self._downward_movement()
         right = self._rightward_movement()
         left = self._leftward_movement()
         possible_moves = up + down + right + left
-        # possible_moves = right
+
         if self.blocking_moves:
             possible_moves = self.get_move_intersection(possible_moves, self.blocking_moves)
-        # if not king.check:
+
         king = self.board.king[self.COLOR]
         if king.attackers and len(king.attackers) > 1:
             possible_moves = []
@@ -321,10 +315,6 @@ class Rook(Piece):
             possible_moves = self.get_move_intersection(possible_moves, king.king_defending_moves)
 
         self.moves = possible_moves
-        # elif [king.attacking_piece.x, king.attacking_piece.y] in possible_moves:
-        #     self.moves = [[king.attacking_piece.x, king.attacking_piece.y]]
-        # else:
-        #     self.moves = []
 
 
 class Knight(Piece):
@@ -340,9 +330,6 @@ class Knight(Piece):
     def get_moves(self):
         possible_moves = self._l_moves()
 
-        # king = board.king[self.COLOR]
-        # if not king.check:
-
         if self.blocking_moves:
             possible_moves = self.get_move_intersection(possible_moves, self.blocking_moves)
 
@@ -353,10 +340,6 @@ class Knight(Piece):
             possible_moves = self.get_move_intersection(possible_moves, king.king_defending_moves)
 
         self.moves = possible_moves
-        # elif [king.attacking_piece.x, king.attacking_piece.y] in possible_moves:
-        #     self.moves = [[king.attacking_piece.x, king.attacking_piece.y]]
-        # else:
-        #     self.moves = []
 
 
 class Bishop(Piece):
@@ -380,8 +363,6 @@ class Bishop(Piece):
         if self.blocking_moves:
             possible_moves = self.get_move_intersection(possible_moves, self.blocking_moves)
 
-        # king = board.king[self.COLOR]
-        # if not king.check:
         king = self.board.king[self.COLOR]
         if king.attackers and len(king.attackers) > 1:
             possible_moves = []
@@ -389,10 +370,6 @@ class Bishop(Piece):
             possible_moves = self.get_move_intersection(possible_moves, king.king_defending_moves)
 
         self.moves = possible_moves
-        # elif [king.attacking_piece.x, king.attacking_piece.y] in possible_moves:
-        #     self.moves = [[king.attacking_piece.x, king.attacking_piece.y]]
-        # else:
-        #     self.moves = []
 
 
 class Queen(Piece):
@@ -420,8 +397,7 @@ class Queen(Piece):
 
         if self.blocking_moves:
             possible_moves = self.get_move_intersection(possible_moves, self.blocking_moves)
-        # king = board.king[self.COLOR]
-        # if not king.check:
+
         king = self.board.king[self.COLOR]
         if king.attackers and len(king.attackers) > 1:
             possible_moves = []
@@ -429,10 +405,6 @@ class Queen(Piece):
             possible_moves = self.get_move_intersection(possible_moves, king.king_defending_moves)
 
         self.moves = possible_moves
-        # elif [king.attacking_piece.x, king.attacking_piece.y] in possible_moves:
-        #     self.moves = [[king.attacking_piece.x, king.attacking_piece.y]]
-        # else:
-        #     self.moves = []
 
 
 class King(Piece):
@@ -486,9 +458,11 @@ class King(Piece):
 
     def _castle_moves(self):
         moves = []
-        if not self.already_moved:
+        if not self.already_moved and not self.check:
             for i in range(self.x+1, 8):
                 piece = self.board.get_piece(i, self.y)
+                if abs(i - self.x) <= 2 and self.square_is_attacked(i, self.y):
+                    break
                 if not piece:
                     continue
                 elif piece and piece.NAME != 'rook':
@@ -498,6 +472,8 @@ class King(Piece):
 
             for i in range(self.x, 0, -1):
                 piece = self.board.get_piece(i-1, self.y)
+                if abs(i - self.x) <= 2 and self.square_is_attacked(i, self.y):
+                    break
                 if not piece:
                     continue
                 elif piece and piece.NAME != 'rook':
@@ -525,7 +501,9 @@ class King(Piece):
                     defender.blocking_moves = move_list
 
             elif piece:
-                if piece.COLOR == self.COLOR:
+                if 'knight' in piece_names and piece.COLOR != self.COLOR:
+                    self.king_defending_moves = [[piece.x, piece.y]]
+                elif piece.COLOR == self.COLOR:
                     defender = piece
                 else:
                     if piece.NAME in piece_names:
@@ -536,14 +514,19 @@ class King(Piece):
 
     def set_blocking_moves(self):
         ghost = Ghost(self.COLOR, self.x, self.y, self.board)
+
         up = ghost._upward_movement(scan=True)
         down = ghost._downward_movement(scan=True)
         left = ghost._leftward_movement(scan=True)
         right = ghost._rightward_movement(scan=True)
+
         upper_left = ghost._upper_left_diagonal(scan=True)
         upper_right = ghost._upper_right_diagonal(scan=True)
         bottom_left = ghost._bottom_left_diagonal(scan=True)
         bottom_right = ghost._bottom_right_diagonal(scan=True)
+
+        pawn_moves = ghost._pawn_capture()
+        knight_moves = ghost._l_moves()
 
         for each in self.board.pieces:
             if each.COLOR == self.COLOR:
@@ -556,28 +539,9 @@ class King(Piece):
             + self._defender_blocking_moves(upper_left, ['bishop', 'queen']) \
             + self._defender_blocking_moves(upper_right, ['bishop', 'queen']) \
             + self._defender_blocking_moves(bottom_left, ['bishop', 'queen']) \
-            + self._defender_blocking_moves(bottom_right, ['bishop', 'queen'])
-
-
-
-    """ CHECK 
-    case 1:
-        the king tries to move into a square that's being atacked by an enemy piece
-        DONE
-    
-    case 2:
-        there's an allied piece protecting the king from an enemy attack, this piece
-        can't move or the king will be in check.
-        DONE
-    
-    case 3:
-        the king is in check, and it has to get safe or an allied piece has to to protect it.
-        DONE
-        
-    case 4 - Check mate:
-        the king is in check and no movement is possible to get out of it.
-    
-    """
+            + self._defender_blocking_moves(bottom_right, ['bishop', 'queen']) \
+            + self._defender_blocking_moves(pawn_moves, ['pawn']) \
+            + self._defender_blocking_moves(knight_moves, ['knight'])
 
 
 class Ghost(Piece):
@@ -594,8 +558,9 @@ class Ghost(Piece):
         bishop_movement = self.check_bishop_movement()
         pawn_movement = self.check_pawn_movement()
         knight_movement = self.check_knight_movement()
+        king_movement = self.check_king_movement()
 
-        attackers = rook_movement + bishop_movement + pawn_movement + knight_movement
+        attackers = rook_movement + bishop_movement + pawn_movement + knight_movement + king_movement
 
         king = self.board.king[self.COLOR]
         if [self.x, self.y] == [king.x, king.y]:
@@ -659,4 +624,23 @@ class Ghost(Piece):
 
         return attackers
 
+    def check_king_movement(self):
+        attackers = []
+        possible_moves = [
+            [self.x + 1, self.y],
+            [self.x + 1, self.y + 1],
+            [self.x + 1, self.y - 1],
+            [self.x - 1, self.y],
+            [self.x - 1, self.y + 1],
+            [self.x - 1, self.y - 1],
+            [self.x, self.y + 1],
+            [self.x, self.y - 1]
+        ]
 
+        for each in possible_moves:
+            piece = self.board.get_piece(each[0], each[1])
+            if piece and piece.COLOR != self.COLOR and piece.NAME == 'king':
+                attackers.append(piece)
+
+        # attackers = []
+        return attackers

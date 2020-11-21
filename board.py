@@ -1,3 +1,4 @@
+import datetime, time
 from pieces import *
 
 CHAR_REP = {
@@ -27,6 +28,19 @@ class Board:
         self.moves = {}
         self._setup_pieces()
 
+        self.last_movement = None
+        self.check = False
+        self.game_over = False
+        self.time_up = False
+        self.clock_running = False
+        self.timer = {}
+        self.turn_begin = {}
+        self.set_timer()
+
+    def set_timer(self, minutes=3):
+        self.timer['white'] = minutes*60
+        self.timer['black'] = minutes*60
+
     def get_piece(self, x, y):
         for piece in self.pieces:
             if piece.x == x and piece.y == y:
@@ -40,15 +54,40 @@ class Board:
 
         move_is_allowed = (target_cell in origin_piece.moves) if origin_piece.moves else None
         print(player.ip, player.color)
-        is_your_turn = self.turn == origin_piece.COLOR == player.color
+        # is_your_turn = self.turn == origin_piece.COLOR == player.color
+        # is_your_turn = self.turn == origin_piece.COLOR
+        is_your_turn = True
         if move_is_allowed and is_your_turn:
             self.remove_en_passant_tag()
             origin_piece.move(x2, y2)
             self.change_turn()
             self.update_board()
+            self.last_movement = [[x1, y1], [x2, y2]]
 
         else:
             raise ValueError('Movement Not allowed')
+
+    def promote_pawn(self, x, y, promotion):
+        piece = self.get_piece(x, y)
+        if not piece:
+            raise ValueError('No piece to promote')
+        elif piece.NAME != 'pawn':
+            raise ValueError("Piece is not a pawn")
+        elif piece.promotion:
+            self.pieces.remove(piece)
+            if promotion == 'queen':
+                self.pieces.append(Queen(piece.COLOR, x, y, self))
+            elif promotion == 'rook':
+                self.pieces.append(Rook(piece.COLOR, x, y, self))
+            elif promotion == 'bishop':
+                self.pieces.append(Bishop(piece.COLOR, x, y, self))
+            elif promotion == 'knight':
+                self.pieces.append(Knight(piece.COLOR, x, y, self))
+            else:
+                raise ValueError('Piece name is not valid')
+
+        else:
+            raise ValueError("Piece can't be promoted")
 
     def remove_en_passant_tag(self):
         for piece in self.pieces:
@@ -63,7 +102,6 @@ class Board:
             self.turn = 'white'
 
     def _setup_pieces(self):
-
         for i in range(8):
             pass
             self.pieces.append(Pawn('black', x=i, y=1, board=self))
@@ -92,12 +130,22 @@ class Board:
         self.king['white'] = King('white', y=7, x=4, board=self)
         self.pieces.append(self.king['white'])
 
+    def there_is_check(self):
+        if self.king['white'].check:
+            self.check = 'white'
+        elif self.king['black'].check:
+            self.check = 'black'
+        else:
+            self.check = False
+
     def update_board(self):
         self.king['white'].get_moves()
         self.king['black'].get_moves()
         for piece in self.pieces:
             if piece.NAME != 'king':
                 piece.get_moves()
+
+        self.there_is_check()
 
     def get_state(self):
         self.update_board()
@@ -122,10 +170,14 @@ class Board:
         return state
 
     def reset_board(self):
+        self.time_up = None
+        self.game_over = False
+        self.set_timer()
         self.pieces = []
         self._setup_pieces()
         self.turn = 'white'
         self.turn_count = 1
+        self.last_movement = None
 
     def check_mate(self):
         colors = ['white', 'black']
@@ -138,6 +190,7 @@ class Board:
                         moves.append(m)
             if not moves:
                 winner = 'white' if color == 'black' else 'black'
+                self.game_over = True
                 return True, winner
         return False, None
 

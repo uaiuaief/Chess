@@ -1,5 +1,5 @@
+import threading
 from flask import Flask, render_template, jsonify, request, redirect, url_for
-# from main import *
 from board import *
 
 app = Flask(__name__)
@@ -15,6 +15,7 @@ class Player:
 
 @app.route('/')
 def index():
+    start_clock()
     connect()
     return render_template('index.html')
 
@@ -41,7 +42,19 @@ def move():
         else:
             return 'fail', 403
     except ValueError:
+        # print(ValueError.with_traceback())
         return 'fail', 403
+
+
+@app.route('/api/promote', methods=['GET', 'POST'])
+def promote_pawn():
+    x = int(request.args.get('x'))
+    y = int(request.args.get('y'))
+    promotion = request.args.get('promotion')
+
+    pawn = board.get_piece(x, y)
+    pawn.promotion = promotion
+    return 'success', 200
 
 
 @app.route('/api/reset')
@@ -57,9 +70,17 @@ def detect_changes():
     turn_count = board.turn_count
 
     return jsonify({
+        'check': board.check,
         'check_mate': check_mate,
+        'time_up': board.time_up,
         'winner': winner,
-        'turn_count': turn_count
+        'turn_count': turn_count,
+        'turn': board.turn,
+        'last_movement': board.last_movement,
+        'timer': {
+            'white': board.timer['white'],
+            'black': board.timer['black']
+        }
     })
 
 
@@ -74,10 +95,29 @@ def connect():
 
     if len(players) == 0:
         players[ip] = Player(ip, 'white')
-    elif len(players) == 1:
+    elif len(players) == 1 and ip not in players:
         players[ip] = Player(ip, 'black')
     else:
         return 'lobby is full'
+
+
+def clock():
+    board.clock_running = True
+    while True:
+        if not board.game_over:
+            time.sleep(0.1)
+            board.timer[board.turn] -= 0.1
+
+            if board.timer[board.turn] <= 0:
+                board.time_up = 'white' if board.turn == 'black' else 'black'
+                board.game_over = True
+
+
+def start_clock():
+    if not board.clock_running:
+        timer_thread = threading.Thread(target=clock)
+        timer_thread.daemon = True
+        timer_thread.start()
 
 
 if __name__ == '__main__':
