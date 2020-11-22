@@ -30,14 +30,14 @@ class Board:
 
         self.last_movement = None
         self.check = False
-        self.game_over = False
+        self.game_over = True
         self.time_up = False
         self.clock_running = False
         self.timer = {}
         self.turn_begin = {}
         self.set_timer()
 
-    def set_timer(self, minutes=3):
+    def set_timer(self, minutes=5):
         self.timer['white'] = minutes*60
         self.timer['black'] = minutes*60
 
@@ -51,6 +51,9 @@ class Board:
         x2, y2 = target_cell
         origin_piece = self.get_piece(x=x1, y=y1)
         target_piece = self.get_piece(x=x2, y=y2)
+
+        if origin_piece is None:
+            return
 
         move_is_allowed = (target_cell in origin_piece.moves) if origin_piece.moves else None
         print(player.ip, player.color)

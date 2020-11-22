@@ -90,6 +90,15 @@ def get_color():
     return players[ip].color
 
 
+@app.route('/api/play')
+def play_game():
+    minutes = int(request.args.get('minutes'))
+    board.set_timer(minutes)
+    board.game_over = False
+
+    return 'success'
+
+
 def connect():
     ip = request.remote_addr
 

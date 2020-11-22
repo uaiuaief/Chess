@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,19 +8,71 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <title>Chess</title>
 </head>
+
 <body>
-    <div class="canvas-container">
-        <canvas id="background-canvas" width="640px" height="640px"></canvas> 
-        <canvas id="canvas" width="640px" height="640px"></canvas> 
-        <div id="check-mate">
-            <p>Check Mate</p>
-            <p class="winner"></p>
-            <button class="restart">Restart Game</button>
+    <div class="game">
+        <div class="timer enemy-timer"></div>
+        <div class="canvas-container">
+                <canvas id="background-canvas" width="640px" height="640px"></canvas>
+                <canvas id="canvas" width="640px" height="640px"></canvas>
+                <div class="screen-cover"></div>
+            
+            <div class="start-screen">
+                <div class="start-1">
+                    <button class="button start-game">Play</button>                    
+                </div>
+                <div class="start-2">
+                    <div class="choose-time">
+                        <button name=5 class="button time">5 min</button>
+                        <button name=10 class="button time">10 min</button>
+                        <button name=15 class="button time">15 min</button>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div id="check-mate">
+                <div class="end-screen-wrapper">
+                    <p class="end-game-text">Check Mate</p>
+                    <p class="winner">White Victory</p>
+                    <button class="restart button">Play Again</button>
+                </div>
+            </div>
+            <div class="promote white">
+                <div class="promotion white-queen">
+                    <img src="static/icons/white_queen.svg" name="queen" alt="">
+                </div>
+                <div class="promotion white-rook">
+                    <img src="static/icons/white_rook.svg" name="rook" alt="">
+                </div>
+                <div class="promotion white-knight">
+                    <img src="static/icons/white_knight.svg" name="knight" alt="">
+                </div>
+                <div class="promotion white-bishop">
+                    <img src="static/icons/white_bishop.svg" name="bishop" alt="">
+                </div>
+            </div>
+            <div class="promote black">
+                <div class="promotion black-queen">
+                    <img src="static/icons/black_queen.svg" name="queen" alt="">
+                </div>
+                <div class="promotion black-rook">
+                    <img src="static/icons/black_rook.svg" name="rook" alt="">
+                </div>
+                <div class="promotion black-knight">
+                    <img src="static/icons/black_knight.svg" name="knight" alt="">
+                </div>
+                <div class="promotion black-bishop">
+                    <img src="static/icons/black_bishop.svg" name="bishop" alt="">
+                </div>
+            </div>
+        </div>
+        <div class="timer self-timer"></div>
+        <div class="reset-container">
+            <button id="reset">Reset</button>
         </div>
     </div>
-    <div class="reset-container">
-        <button id="reset">Reset</button>
-    </div>
-    <script src="static/script.js"></script>
+    <script type="module" src="static/script.js"></script>
 </body>
+
 </html>

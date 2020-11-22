@@ -110,7 +110,7 @@ class Controller {
         // if (turn != player_color) {
         //     this.selected_square = null;
         //     this.dragged_piece = null; 
-        //     getBoard()
+        //     server_comm.getBoard()
         //     this.first_click = this.second_click = null
         //     return
         // }
@@ -135,7 +135,7 @@ class Controller {
         // if (turn != piece.color) {
         //     this.selected_square = null;
         //     this.dragged_piece = null; 
-        //     getBoard()
+        //     server_comm.getBoard()
         //     this.first_click = this.second_click = null
         //     return
         // }
@@ -149,7 +149,7 @@ class Controller {
             fetch(move_url)
             this.selected_square = null;
             this.dragged_piece = null;
-            getBoard()
+            server_comm.getBoard()
             this.first_click = this.second_click = null
 
             fetch('/api/changes').then(res => res.json()
@@ -177,7 +177,7 @@ class Controller {
     showPromotions(color, ox, oy, callback) {
         this.selected_square = null;
         this.dragged_piece = null;
-        getBoard()
+        server_comm.getBoard()
         this.first_click = this.second_click = null
         $(`.${color}`).show();
         if (color == 'black') {

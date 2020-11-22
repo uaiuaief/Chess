@@ -23,6 +23,15 @@ canvas {
     margin: auto;
 }
 
+.screen-cover {
+    grid-column: 2;
+    grid-row: 2;
+    width: 640px;
+    height: 640px;
+    background-color: rgba(0, 0, 0, .4);
+    
+}
+
 .reset-container {
     text-align: center;
     margin: auto; 
@@ -127,4 +136,43 @@ canvas {
     position: relative;
     width: 640px;
     margin: auto;
+}
+
+.start-screen { 
+    grid-column: 2;
+    grid-row: 2;
+    margin: auto;
+    width: 350px;
+    height: 350px;
+    background-color: #312e2b;
+    border: none;
+    border-radius: 8px;
+}
+
+.start-1 {
+    /* display: none; */
+}
+
+.start-game {
+    display: block;
+    margin: auto;
+    margin-top: 6em;
+}
+
+.start-2 {
+    display: none;
+    text-align: center;
+}
+
+.choose-time {
+    margin-top: 4.3em;
+}
+
+.time {
+    width: 170px;
+    padding-left: 0;
+    padding-right: 0;
+    margin: auto;
+    margin-top: 1em;
+    display: block;
 }
