@@ -66,22 +66,25 @@ def reset_board():
 
 @app.route('/api/changes', methods=['GET', 'POST'])
 def detect_changes():
-    check_mate, winner = board.check_mate()
-    turn_count = board.turn_count
+    # check_mate, winner = board.check_mate()
 
-    return jsonify({
-        'check': board.check,
-        'check_mate': check_mate,
-        'time_up': board.time_up,
-        'winner': winner,
-        'turn_count': turn_count,
-        'turn': board.turn,
-        'last_movement': board.last_movement,
-        'timer': {
-            'white': board.timer['white'],
-            'black': board.timer['black']
-        }
-    })
+    return jsonify(board.info.get_state())
+
+    # return jsonify({
+    #     'check': board.check,
+    #     'check_mate': check_mate,
+    #     'time_up': board.time_up,
+    #     'winner': winner,
+    #     'move_count': board.move_count,
+    #     'turn_count': board.turn_count,
+    #     'turn': board.turn,
+    #     'last_movement': board.last_movement,
+    #     'timer': {
+    #         'white': board.timer['white'],
+    #         'black': board.timer['black']
+    #     },
+    #     'history': board.move_history
+    # })
 
 
 @app.route('/api/GET/color')
@@ -94,7 +97,7 @@ def get_color():
 def play_game():
     minutes = int(request.args.get('minutes'))
     board.set_timer(minutes)
-    board.game_over = False
+    board.info.game_over = False
 
     return 'success'
 
@@ -111,19 +114,19 @@ def connect():
 
 
 def clock():
-    board.clock_running = True
+    board.info.clock_is_running = True
     while True:
-        if not board.game_over:
+        if not board.info.game_over:
             time.sleep(0.1)
-            board.timer[board.turn] -= 0.1
+            board.info.timer[board.info.current_turn] -= 0.1
 
-            if board.timer[board.turn] <= 0:
-                board.time_up = 'white' if board.turn == 'black' else 'black'
+            if board.info.timer[board.info.current_turn] <= 0:
+                board.time_up = 'white' if board.info.current_turn == 'black' else 'black'
                 board.game_over = True
 
 
 def start_clock():
-    if not board.clock_running:
+    if not board.info.clock_is_running:
         timer_thread = threading.Thread(target=clock)
         timer_thread.daemon = True
         timer_thread.start()

@@ -12,6 +12,7 @@ class ServerCommunication {
     handleTurnChange(data) {
         hud.changeClockTurn();
         turn_count = data.turn_count;
+        move_count = data.move_count;
         this.getBoard();
 
         if (data.check_mate) {
@@ -21,7 +22,7 @@ class ServerCommunication {
 
     handleTimer(data) {
         hud.decreaseClockTime(data);
-        turn = data.turn;
+        turn = data.current_turn;
 
         if (!this.tenseconds_warning_played && data.timer[player_color] <= 11) {
             audio.tenseconds.play()
@@ -35,11 +36,25 @@ class ServerCommunication {
                 .then(data => {
                     this.handleTimer(data);
 
-                    if (turn_count != data.turn_count) {
+                    if (move_count != data.move_count) {
                         this.handleTurnChange(data);
                         if (turn == player_color) {
                             audio.move_opponent.play();
                         }
+
+
+                        $('.white-turn').text('')
+                        $('.black-turn').text('')
+                        $('.turn-count').text('')
+                        for (let key in data.move_history) {
+                            let move = data.move_history[key]
+                            let white_move = move['white'];
+                            let black_move = move['black'] ? move['black'] : '';
+                            $('.turn-count').append(`<div class="line">${key}.</div>`);
+                            $('.white-turn').append(`<div class="line white-move">${white_move}</div>`);
+                            $('.black-turn').append(`<div class="line black-move">${black_move}</div>`);
+                        }
+
                     }
                     if (data.time_up) {
                         this.handleTimeUp(data);

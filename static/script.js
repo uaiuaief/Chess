@@ -7,7 +7,8 @@ import { Mouse } from './mouse.js';
 import { ServerCommunication } from './server_communication.js';
 
 
-window.turn_count = 1
+window.move_count = 0;
+window.turn_count = 1;
 
 window.audio = new AudioPlayer;
 window.mouse = new Mouse();
@@ -76,8 +77,8 @@ function loadSprites() {
 }
 
 setInterval(() => {
-    server_comm.detectChanges(turn_count)
-}, 500);
+    server_comm.detectChanges()
+}, 1000);
 
 requestAnimationFrame(() => {
     screen.drawBoard()

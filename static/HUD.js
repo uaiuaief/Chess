@@ -5,7 +5,7 @@ class HUD {
             hud.showStartScreen();
         })
 
-        $('.restart').on('click', () => hud.playAgain())
+        $('.restart').on('click', () => hud.rematch())
 
         $('.start-game').on('click', () => {
             $('.start-1').hide();
@@ -31,7 +31,7 @@ class HUD {
         $('.screen-cover').show();
     }
 
-    playAgain() {
+    rematch() {
         this.resetBoard()
         $('#check-mate').hide();
         $('.screen-cover').hide();
@@ -50,6 +50,7 @@ class HUD {
     startGame(minutes) {
         fetch(`/api/play?minutes=${minutes}`)
         mouse.activateControllers();
+        audio.game_start.play();
 
     }
 

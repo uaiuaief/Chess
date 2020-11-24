@@ -32,6 +32,34 @@ canvas {
     
 }
 
+.move-history {
+    display: grid;
+    grid-template-columns: 20% 1fr 1fr;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 22px;
+    position: absolute;
+    left: -200px;
+    width: 200px;
+    height: 640px;
+    /* background-color: #312e2b; */
+    color: #ddd;
+    border: 1px solid #aaa;
+}
+
+.turn-moves {
+    display: flex;
+    
+}
+
+.line {
+    /* display: inline; */
+    padding: 0 .4em .4em 0;
+}
+
+.white-turn, .black-turn {
+    text-align: center;
+}
+
 .reset-container {
     text-align: center;
     margin: auto; 
