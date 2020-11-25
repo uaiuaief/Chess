@@ -215,7 +215,8 @@ class Pawn(Piece):
             if not self.promotion:
                 raise ValueError("no promotion was chosen")
             else:
-                self.board.promote_pawn(self.x, self.y, self.promotion)
+                # self.board.promote_pawn(self.x, self.y, self.promotion)
+                self.board.events.promote_pawn(self.x, self.y, self.promotion)
 
     def _capture_en_passant(self, x, y):
         one = 1 if self.COLOR == 'white' else -1

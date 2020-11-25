@@ -79,6 +79,7 @@ class Controller {
         this.dragged_piece = null;
         $(window).off('mouseup')
 
+
     }
 
     async mouseDown(e) {

@@ -39,7 +39,15 @@ class ServerCommunication {
                     if (move_count != data.move_count) {
                         this.handleTurnChange(data);
                         if (turn == player_color) {
-                            audio.move_opponent.play();
+                            if (data.last_movement_castle) {
+                                audio.castle.play();
+                            }
+                            else if (data.last_movement_capture) {
+                                audio.move_check.play();
+                            }
+                            else {
+                                audio.move_opponent.play();
+                            }
                         }
 
 
@@ -49,9 +57,9 @@ class ServerCommunication {
                         for (let key in data.move_history) {
                             let move = data.move_history[key]
                             let white_move = move['white'];
-                            let black_move = move['black'] ? move['black'] : '';
-                            $('.turn-count').append(`<div class="line">${key}.</div>`);
-                            $('.white-turn').append(`<div class="line white-move">${white_move}</div>`);
+                            let black_move = move['black'] ? move['black'] : ' ';
+                            $('.turn-count').append(`<div class="turn-count-number line">${key}.</div>`);
+                            $('.white-turn').append(`<p class="line white-move">${white_move}</p>`);
                             $('.black-turn').append(`<div class="line black-move">${black_move}</div>`);
                         }
 
@@ -86,6 +94,8 @@ class ServerCommunication {
             board.invert()
         }
         screen.drawBackground();
+        let element = document.querySelector('.move-history');
+        element.scrollTo(0, element.scrollHeight)
     }
 }
 

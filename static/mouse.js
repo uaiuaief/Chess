@@ -2,8 +2,8 @@ class Mouse {
     constructor() {
         this.x
         this.y
-        // $(window).on('mousemove', (e) => this.move(e))
-        // $('canvas').on('mousedown', (e) => this.b1_down(e))
+        $(window).on('mousemove', (e) => this.move(e))
+        $('canvas').on('mousedown', (e) => this.b1_down(e))
     }
 
     activateControllers() {
@@ -11,10 +11,10 @@ class Mouse {
         $('canvas').on('mousedown', (e) => this.b1_down(e))
     }
 
-    deactivateControllers() {
-        $(window).off('mousemove')
-        $('canvas').off('mousedown')
-    }
+    // deactivateControllers() {
+    //     $(window).off('mousemove')
+    //     $('canvas').off('mousedown')
+    // }
 
     getCoord() {
         return [this.x, this.y]

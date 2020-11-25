@@ -37,7 +37,7 @@ def move():
     try:
         ip = request.remote_addr
         if ip in players:
-            board.move(origin, target, players[ip])
+            board.events.move(origin, target, players[ip])
             return 'success', 200
         else:
             return 'fail', 403
@@ -121,8 +121,8 @@ def clock():
             board.info.timer[board.info.current_turn] -= 0.1
 
             if board.info.timer[board.info.current_turn] <= 0:
-                board.time_up = 'white' if board.info.current_turn == 'black' else 'black'
-                board.game_over = True
+                board.info.time_up = 'white' if board.info.current_turn == 'black' else 'black'
+                board.info.game_over = True
 
 
 def start_clock():

@@ -49,7 +49,7 @@ class HUD {
 
     startGame(minutes) {
         fetch(`/api/play?minutes=${minutes}`)
-        mouse.activateControllers();
+        // mouse.activateControllers();
         audio.game_start.play();
 
     }
