@@ -7,12 +7,25 @@ class HUD {
 
         $('.restart').on('click', () => hud.rematch())
 
-        $('.start-game').on('click', () => {
-            $('.start-1').hide();
-            $('.start-2').show();
+        $('.play-button').on('click', () => {
+            $('.start-screen').hide();
+            $('.choose-game-type').show();
+        })
+
+        $('.against-human').on('click', () => {
+            $('.choose-game-type').hide();
+            $('.connection-status').show();
+            // $('.choose-time').show();
+        })
+        $('.against-computer').on('click', () => {
+            $('.choose-game-type').hide();
+            $('.start-screen-wrapper').hide();
+            hud.chooseTime(60)
         })
 
         $('.time').on('click', (e) => {
+            $('.choose-time').hide();
+            // $('.connection-status').show();
             let minutes = e.target.name;
             hud.chooseTime(minutes)
         })
@@ -25,9 +38,15 @@ class HUD {
     }
 
     showStartScreen() {
+        if (player_color == 'black') return;
+
+        $('.choose-time').hide();
+        $('.choose-game-type').hide();
+        $('.connection-status').hide();
+
+        $('.start-screen-wrapper').show();
         $('.start-screen').show();
-        $('.start-1').show();
-        $('.start-2').hide();
+        // $('.start-2').hide();
         $('.screen-cover').show();
     }
 
@@ -42,7 +61,8 @@ class HUD {
     }
 
     chooseTime(minutes) {
-        $('.start-screen').hide();
+        $('.start-screen-wrapper').hide();
+        $('.choose-time').hide();
         $('.screen-cover').hide();
         this.startGame(minutes);
     }
@@ -60,7 +80,7 @@ class HUD {
         $('#check-mate').show();
         $('.screen-cover').show();
         audio.game_end.play();
-        mouse.deactivateControllers();
+        // mouse.deactivateControllers();
         document.body.style.cursor = 'default';
     }
 

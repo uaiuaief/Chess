@@ -1,5 +1,3 @@
+from flask import jsonify
 
-a = {1: 2, 'b': 3}
-
-if 'b' in a:
-    print('a')
+a = {'a': 1, '2': 2}

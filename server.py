@@ -1,4 +1,5 @@
 import threading
+import json
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from board import *
 
@@ -7,11 +8,21 @@ board = Board()
 players = {}
 
 
+class Connections:
+    def __init__(self):
+        pass
+
+
 class Player:
     def __init__(self, ip, color):
         self.ip = ip
         self.color = color
+        self.connected = False
+        self.connection_health = 100
 
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
 @app.route('/')
 def index():
@@ -40,10 +51,10 @@ def move():
             board.events.move(origin, target, players[ip])
             return 'success', 200
         else:
-            return 'fail', 403
-    except ValueError:
-        # print(ValueError.with_traceback())
-        return 'fail', 403
+            raise ValueError('Player is not connected')
+
+    except ValueError as e:
+        return str(e), 403
 
 
 @app.route('/api/promote', methods=['GET', 'POST'])
@@ -59,6 +70,7 @@ def promote_pawn():
 
 @app.route('/api/reset')
 def reset_board():
+    print(request.remote_addr)
     board.reset_board()
 
     return 'success', 200
@@ -66,25 +78,10 @@ def reset_board():
 
 @app.route('/api/changes', methods=['GET', 'POST'])
 def detect_changes():
-    # check_mate, winner = board.check_mate()
-
+    # print(players[request.remote_addr])
+    players[request.remote_addr].connection_health = 100
+    players[request.remote_addr].connected = True
     return jsonify(board.info.get_state())
-
-    # return jsonify({
-    #     'check': board.check,
-    #     'check_mate': check_mate,
-    #     'time_up': board.time_up,
-    #     'winner': winner,
-    #     'move_count': board.move_count,
-    #     'turn_count': board.turn_count,
-    #     'turn': board.turn,
-    #     'last_movement': board.last_movement,
-    #     'timer': {
-    #         'white': board.timer['white'],
-    #         'black': board.timer['black']
-    #     },
-    #     'history': board.move_history
-    # })
 
 
 @app.route('/api/GET/color')
@@ -106,18 +103,31 @@ def connect():
     ip = request.remote_addr
 
     if len(players) == 0:
-        players[ip] = Player(ip, 'white')
+        player = Player(ip, 'white')
+        players[ip] = player
+        board.info.players.append(player.__dict__)
+        player.connected = True
     elif len(players) == 1 and ip not in players:
-        players[ip] = Player(ip, 'black')
+        player = Player(ip, 'black')
+        players[ip] = player
+        board.info.players.append(player.__dict__)
+        player.connected = True
     else:
         return 'lobby is full'
 
 
 def clock():
-    board.info.clock_is_running = True
     while True:
+        time.sleep(0.1)
+
+        for player in players:
+            players[player].connection_health -= 1
+
+            # print(players[player].connection_health )
+            if players[player].connection_health == 0:
+                players[player].connected = False
+
         if not board.info.game_over:
-            time.sleep(0.1)
             board.info.timer[board.info.current_turn] -= 0.1
 
             if board.info.timer[board.info.current_turn] <= 0:
@@ -127,6 +137,7 @@ def clock():
 
 def start_clock():
     if not board.info.clock_is_running:
+        board.info.clock_is_running = True
         timer_thread = threading.Thread(target=clock)
         timer_thread.daemon = True
         timer_thread.start()

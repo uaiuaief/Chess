@@ -34,6 +34,42 @@ class ServerCommunication {
         fetch(`/api/changes`)
             .then((res) => res.json()
                 .then(data => {
+                    // $('.test').empty();
+                    // if (data.game_over && player_color == 'white') {
+                    //     $('.start-screen-wrapper').show();
+                    // }
+                    let connections = data.players.filter(player => {
+                        if (player.connected) return true;
+                    })
+                    console.log(connections[1]);
+
+                    if (connections.length == 1) {
+                        $('.player-one-connection').addClass("connected");
+                        $('.player-two-connection').removeClass("connected");
+                    } 
+                    else if (connections.length == 2) {
+                        $('.player-one-connection').addClass("connected");
+                        $('.player-two-connection').addClass("connected");
+                    }
+                    else {
+                        $('.player-one-connection').removeClass("connected");
+                        $('.player-two-connection').removeClass("connected");
+                    }
+                        // console.log(player_color);
+                        if (data.game_over){
+                            // for (let i = 3; i >= 0; i--){
+                            //     console.log(i);
+                            //     let text = `Game starting in ${i}`
+                            //     $('.connection-status').text(text);
+                            //     // setTimeout(() => {},1000);
+                            // }
+                            // $('.start-screen').hide();
+                            // $('.connection-status').hide();
+                            // $('.choose-time').show();
+                        }
+                    
+
+                    // console.log(data.players);
                     this.handleTimer(data);
 
                     if (move_count != data.move_count) {

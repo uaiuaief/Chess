@@ -13,6 +13,7 @@ window.turn_count = 1;
 window.audio = new AudioPlayer;
 window.mouse = new Mouse();
 window.server_comm = new ServerCommunication()
+
 window.hud = new HUD();
 
 window.canvas = document.getElementById("canvas");
@@ -59,7 +60,9 @@ async function loadEverything() {
 
 }
 
-loadEverything().then(() => server_comm.getBoard())
+loadEverything().then(() => {
+    server_comm.getBoard()
+})
 
 
 function loadSprites() {

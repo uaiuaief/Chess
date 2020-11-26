@@ -10,6 +10,10 @@
 </head>
 
 <body>
+    <div class="connection-status">
+        <div class="player-one-connection"></div>
+        <div class="player-two-connection"></div>
+    </div>
     <div class="game">
         <div class="timer enemy-timer"></div>
         <div class="canvas-container">
@@ -22,16 +26,23 @@
             <canvas id="canvas" width="640px" height="640px"></canvas>
             <div class="screen-cover"></div>
             
-            <div class="start-screen">
-                <div class="start-1">
-                    <button class="button start-game">Play</button>                    
+            <div class="start-screen-wrapper">
+                <div class="start-screen">
+                    <button class="button play-button">Play</button>                    
                 </div>
-                <div class="start-2">
-                    <div class="choose-time">
-                        <button name=5 class="button time">5 min</button>
-                        <button name=10 class="button time">10 min</button>
-                        <button name=15 class="button time">15 min</button>
-                    </div>
+                <div class="choose-game-type">
+                    <button class="button against-human">Human</button>                    
+                    <button class="button against-computer">Computer</button>                    
+                </div>
+                <div class="connection-status">
+                    <p>Waiting Opponent</p>
+                    <div class="player-one-connection"></div>
+                    <div class="player-two-connection"></div>
+                </div>
+                <div class="choose-time">
+                    <button name=5 class="button time">5 min</button>
+                    <button name=10 class="button time">10 min</button>
+                    <button name=15 class="button time">15 min</button>
                 </div>
 
             </div>
