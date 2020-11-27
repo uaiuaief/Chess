@@ -13,19 +13,21 @@ body {
 canvas {
     /* border:1px solid #000000; */
     grid-column: 2;
-    grid-row: 2;
+    grid-row: 1;
 }
 
 .canvas-container {
     position: relative;
     display: grid;
+    /* grid-template-rows: 1fr 1fr; */
     width: 640px;
     margin: auto;
 }
 
 .screen-cover {
+    display: none;
     grid-column: 2;
-    grid-row: 2;
+    grid-row: 1;
     width: 640px;
     height: 640px;
     background-color: rgba(0, 0, 0, .4);
@@ -38,6 +40,8 @@ canvas {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 16px;
     position: absolute;
+    /* grid-row: 1;
+    grid-column: 1; */
     left: -270px;
     width: 250px;
     height: 640px;
@@ -84,7 +88,7 @@ canvas {
     margin: auto;
 }
 
-#check-mate {
+.check-mate {
     display: none;
     background-color: #312e2b;
     color: #ddd;
@@ -169,6 +173,10 @@ canvas {
     color: #312e2b;
 }
 
+.enemy-timer {
+    grid-column: 2;
+}
+
 .self-timer {
     position: absolute;
     right: 0px;
@@ -180,10 +188,10 @@ canvas {
     margin: auto;
 }
 
-.start-screen-wrapper { 
-    /* display: none; */
+.screen-wrapper { 
+    display: none;
     grid-column: 2;
-    grid-row: 2;
+    grid-row: 1;
     margin: auto;
     width: 350px;
     height: 350px;
@@ -224,6 +232,12 @@ canvas {
     height: 100px;
 }
 
+.count-down {
+    display: none;
+    font-size: 30px;
+    color: white;
+}
+
 .player-one-connection, .player-two-connection{
     float: left;
     background-color: black;
@@ -234,4 +248,13 @@ canvas {
 
 .connected {
     background-color: green;
+}
+
+
+@media screen and (max-width:700px) {
+    .move-history {
+        position: relative;
+        grid-row: 1;
+        grid-column: 2;
+    }
 }

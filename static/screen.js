@@ -62,10 +62,23 @@ class Screen {
     }
 
     drawLastMovement() {
+        let data = server_comm.server_info;
+        if (!data || !data.last_movement) return;
+
+        let last_movement = [data.last_movement[0], data.last_movement[1]]
+
+        if (player_color == 'black') {
+            let [ox, oy] = data.last_movement[0];
+            let [tx, ty] = data.last_movement[1];
+            [ox, oy] = [7 - ox, 7 - oy];
+            [tx, ty] = [7 - tx, 7 - ty];
+            last_movement = [[ox, oy], [tx, ty]];
+        }
+
         if (last_movement) {
-            let [originx, originy] = last_movement [0]
-            let [targetx, targety] = last_movement [1]
-            
+            let [originx, originy] = last_movement[0]
+            let [targetx, targety] = last_movement[1]
+
             // ctx.fillStyle = 'rgba(140, 49, 0, .8)';
             ctx.fillStyle = 'rgba(140, 49, 0, .2)';
             let [x, y] = [originx * basis, originy * basis];
@@ -119,12 +132,12 @@ class Screen {
                 bg_ctx.fillStyle = '#6d945d'
             }
             bg_ctx.font = 'bold 17px Arial'
-            if (player_color == 'black' ) {
+            if (player_color == 'black') {
                 bg_ctx.fillText(9 - i, 2, 657 - (i * basis))
             } else {
                 bg_ctx.fillText(i, 2, 657 - (i * basis))
             }
-            
+
         }
     }
 
@@ -138,7 +151,7 @@ class Screen {
                 bg_ctx.fillStyle = '#6d945d'
             }
             bg_ctx.font = 'bold 17px Arial'
-            if (player_color == 'black' ) {
+            if (player_color == 'black') {
                 bg_ctx.fillText(letters[7 - i], (i * basis) + 64, 635)
             } else {
                 bg_ctx.fillText(letters[i], (i * basis) + 64, 635)
@@ -208,7 +221,7 @@ class Screen {
     }
 
     drawRectangle() {
-        let [i, j] = mouse.getIndex(); 
+        let [i, j] = mouse.getIndex();
         let piece = board._getPiece(i, j);
         if (piece) {
             ctx.strokeStyle = '#666';

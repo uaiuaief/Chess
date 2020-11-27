@@ -33,6 +33,7 @@ class BoardInfo:
         self.winner = None
         self.check_mate = False
         self.game_over = True
+        self.game_started = False
         self.time_up = False
         self.clock_is_running = False
         self.timer = {}
@@ -51,6 +52,7 @@ class BoardInfo:
             'check_mate': self.check_mate,
             'winner': self.winner,
             'game_over': self.game_over,
+            'game_started': self.game_started,
             'time_up': self.time_up,
             'clock_is_running': self.clock_is_running,
             'timer': {
@@ -71,6 +73,7 @@ class BoardInfo:
         self.winner = None
         self.check_mate = False
         self.game_over = True
+        self.game_started = False
         self.time_up = False
 
 

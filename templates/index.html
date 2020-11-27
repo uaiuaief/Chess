@@ -25,14 +25,14 @@
             <canvas id="background-canvas" width="640px" height="640px"></canvas>
             <canvas id="canvas" width="640px" height="640px"></canvas>
             <div class="screen-cover"></div>
-            
-            <div class="start-screen-wrapper">
+
+            <div class="screen-wrapper">
                 <div class="start-screen">
-                    <button class="button play-button">Play</button>                    
+                    <button class="button play-button">Play</button>
                 </div>
                 <div class="choose-game-type">
-                    <button class="button against-human">Human</button>                    
-                    <button class="button against-computer">Computer</button>                    
+                    <button class="button against-human">Human</button>
+                    <button class="button against-computer">Computer</button>
                 </div>
                 <div class="connection-status">
                     <p>Waiting Opponent</p>
@@ -44,16 +44,20 @@
                     <button name=10 class="button time">10 min</button>
                     <button name=15 class="button time">15 min</button>
                 </div>
+                <div class="count-down">
+
+                </div>
+                <div class="check-mate">
+                    <div class="end-screen-wrapper">
+                        <p class="end-game-text">Check Mate</p>
+                        <p class="winner">White Victory</p>
+                        <button class="restart button">Play Again</button>
+                    </div>
+                </div>
 
             </div>
-            
-            <div id="check-mate">
-                <div class="end-screen-wrapper">
-                    <p class="end-game-text">Check Mate</p>
-                    <p class="winner">White Victory</p>
-                    <button class="restart button">Play Again</button>
-                </div>
-            </div>
+
+
             <div class="promote white">
                 <div class="promotion white-queen">
                     <img src="static/icons/white_queen.svg" name="queen" alt="">

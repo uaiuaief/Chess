@@ -20,9 +20,6 @@ class Player:
         self.connected = False
         self.connection_health = 100
 
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__,
-                          sort_keys=True, indent=4)
 
 @app.route('/')
 def index():
@@ -95,6 +92,7 @@ def play_game():
     minutes = int(request.args.get('minutes'))
     board.set_timer(minutes)
     board.info.game_over = False
+    board.info.game_started = True
 
     return 'success'
 

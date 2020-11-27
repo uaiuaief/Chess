@@ -6,12 +6,29 @@ import { AudioPlayer } from './audio_player.js';
 import { Mouse } from './mouse.js';
 import { ServerCommunication } from './server_communication.js';
 
+class MainLoop {
+    constructor(){
+        this.running_functions = [];
+    }
+
+    run() {
+        setInterval(() => {
+            this.running_functions.forEach(func => func())
+        }, 1000);
+    }
+
+    addFunction(func) {
+        this.running_functions.push(func);
+    }
+}
+
 
 window.move_count = 0;
 window.turn_count = 1;
 
 window.audio = new AudioPlayer;
 window.mouse = new Mouse();
+window.loop = new MainLoop();
 window.server_comm = new ServerCommunication()
 
 window.hud = new HUD();
@@ -79,12 +96,17 @@ function loadSprites() {
     return sprite_list
 }
 
-setInterval(() => {
-    server_comm.detectChanges()
-}, 1000);
+
+loop.addFunction(() => server_comm.detectChanges());
+loop.run()
+
+// setInterval(() => {
+//     server_comm.detectChanges()
+
+// }, 1000);
 
 requestAnimationFrame(() => {
-    screen.drawBoard()
+    screen.drawBoard();
 
 })
 
