@@ -15,7 +15,12 @@
         <div class="player-two-connection"></div>
     </div>
     <div class="game">
-        <div class="timer enemy-timer"></div>
+        <div class="enemy-player info">
+            <div class="captured-pieces enemy">
+                <p><span class="pawn"></span><span class="others"></span></p>
+            </div>
+            <div class="timer enemy-timer"></div>
+        </div>
         <div class="canvas-container">
             <div class="move-history">
                 <div class="turn-count"></div>
@@ -87,7 +92,12 @@
                 </div>
             </div>
         </div>
-        <div class="timer self-timer"></div>
+        <div class="self-player info">
+            <div class="captured-pieces self">
+                <p><span class="pawn"></span><span class="others"></span></p>
+            </div>
+            <div class="timer self-timer"></div>
+        </div>
         <div class="reset-container">
             <button id="reset">Reset</button>
         </div>

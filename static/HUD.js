@@ -29,7 +29,7 @@ class HUD {
         })
     }
 
-    changeToScreen(screen){
+    changeToScreen(screen) {
         if (!screen) {
             $('.screen-wrapper').hide();
             $('.screen-cover').hide();
@@ -39,19 +39,19 @@ class HUD {
 
         this.current_screen = screen;
         let screen_list = [
-            'start-screen', 
-            'choose-game-type', 
-            'connection-status', 
+            'start-screen',
+            'choose-game-type',
+            'connection-status',
             'choose-time',
             'count-down',
             'check-mate'
         ];
-        
+
         $('.screen-wrapper').show();
         $('.screen-cover').show();
         $(`.${screen}`).show();
         screen_list.forEach(sc => {
-            if (sc != screen){
+            if (sc != screen) {
                 $(`.${sc}`).hide();
             }
         })
@@ -75,7 +75,7 @@ class HUD {
         let data = server_comm.server_info
         if (!data) return;
 
-        console.log(this.current_screen);
+        // console.log(this.current_screen);
         let connections = data.players.filter(player => {
             if (player.connected) return true;
         })
@@ -186,6 +186,129 @@ class HUD {
             $('.self-timer').removeClass("active")
         }
 
+    }
+
+    getChessCode(color, name) {
+        let chess_code;
+        color = 'white';
+        switch (name) {
+            case 'pawn':
+                chess_code = (color == 'white') ? '&#9823;' : '&#9817;';
+                break;
+            case 'knight':
+                chess_code = (color == 'white') ? '&#9822;' : '&#9816;';
+                break;
+            case 'bishop':
+                chess_code = (color == 'white') ? '&#9821;' : '&#9815;';
+                break;
+            case 'rook':
+                chess_code = (color == 'white') ? '&#9820;' : '&#9814;';
+                break;
+            case 'queen':
+                chess_code = (color == 'white') ? '&#9819;' : '&#9813;';
+                break;
+            case 'king':
+                chess_code = (color == 'white') ? '&#9818;' : '&#9812;';
+                break;
+        }
+        return chess_code
+
+    }
+
+    addToCapturedPieces(color, name) {
+        let player = (player_color == color) ? 'self' : 'enemy';
+
+        let chess_code = this.getChessCode(color, name)
+        if (color == player_color) {
+            if (name == 'pawn') {
+                $('.captured-pieces.enemy .pawn').prepend(chess_code);
+            }
+            else {
+                $('.captured-pieces.enemy .others').append(chess_code);
+            }
+        }
+        else {
+            if (name == 'pawn') {
+                $('.captured-pieces.self .pawn').prepend(chess_code);
+            }
+            else {
+                $('.captured-pieces.self .others').append(chess_code);
+            }
+        }
+    }
+
+    updateCapturedPieces() {
+        $('.others').text('');
+        $('.pawn').text('');
+
+        const compare_function = (a, b) => {
+            let get_value = (name) => {
+                if (name == 'pawn') return 0; 
+                else if (name == 'bishop') return 1;
+                else if (name == 'knight') return 2;
+                else if (name == 'rook') return 3;
+                else if (name == 'queen') return 4;
+            }
+            a = get_value(a);
+            b = get_value(b);
+            return (a - b);
+        }
+
+        let captured_white =
+            server_comm.server_info.captured_pieces.
+                filter(piece => piece.color == 'white').
+                map(piece => piece.name).
+                sort(compare_function);
+
+        let captured_black =
+            server_comm.server_info.captured_pieces.
+                filter(piece => piece.color == 'black').
+                map(piece => piece.name).
+                sort(compare_function);
+
+        captured_white.forEach(name => this.addToCapturedPieces('white', name));
+        captured_black.forEach(name => this.addToCapturedPieces('black', name));
+            // console.log(name);
+        //     let chess_code = this.getChessCode('black', name)
+        //     if (player_color == 'white') {
+        //         if (name == 'pawn') {
+        //             $('.captured-pieces.self .pawn').prepend(chess_code);
+        //         }
+        //         else {
+        //             $('.captured-pieces.self .others').append(chess_code);
+        //         }
+        //     }
+        //     else {
+        //         if (name == 'pawn') {
+        //             $('.captured-pieces.enemy .pawn').prepend(chess_code);
+        //         }
+        //         else {
+        //             $('.captured-pieces.enemy .others').append(chess_code);
+        //         }
+        //     }
+        // })
+        // console.log(captured_white);
+
+        // server_comm.server_info.captured_pieces.forEach(piece => {
+        //     this.addToCapturedPieces(piece.color, piece.name)
+        // let chess_code = this.getChessCode(piece.color, piece.name)
+        // if (piece.color == player_color) {
+        //     if (piece.name == 'pawn') {
+        //         $('.captured-pieces.enemy .pawn').prepend(chess_code);
+        //     }
+        //     else {
+        //         $('.captured-pieces.enemy .others').append(chess_code);
+        //     }
+        // }
+        // else {
+        //     if (piece.name == 'pawn') {
+        //         $('.captured-pieces.self .pawn').prepend(chess_code);
+        //     }
+        //     else {
+        //         $('.captured-pieces.self .others').append(chess_code);
+        //     }
+        // }
+        // })
     }
 
     decreaseClockTime(data) {

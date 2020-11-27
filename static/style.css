@@ -80,6 +80,9 @@ canvas {
 }
 
 .reset-container {
+    position: absolute;
+    top: 0;
+    left: 300px;
     text-align: center;
     margin: auto; 
 }
@@ -173,15 +176,6 @@ canvas {
     color: #312e2b;
 }
 
-.enemy-timer {
-    grid-column: 2;
-}
-
-.self-timer {
-    position: absolute;
-    right: 0px;
-}
-
 .game {
     position: relative;
     width: 640px;
@@ -249,6 +243,51 @@ canvas {
 .connected {
     background-color: green;
 }
+
+.captured-pieces {
+    font-size: 35px;
+    width: 500px;
+}
+
+.captured-black {
+    color: black;
+    text-shadow: 
+        -1px -1px 1px #aaa,
+         1px -1px 1px #aaa,
+        -1px  1px 1px #aaa,
+         1px  1px 1px #aaa;
+}
+
+.captured-white{
+    color: white;
+    text-shadow: 
+        -1px -1px 1px #000,
+         1px -1px 1px #000,
+        -1px  1px 1px #000,
+         1px  1px 1px #000;
+}
+
+.pawn {
+    letter-spacing: -18px;
+}
+
+.others {
+    margin-left: .3em;
+    letter-spacing: -4px;
+}
+
+.info {
+    display: flex;
+    justify-content: space-between;
+}
+
+.enemy-player.info .captured-pieces{
+    align-self: flex-end;
+}
+
+
+
+
 
 
 @media screen and (max-width:700px) {

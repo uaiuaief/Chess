@@ -64,6 +64,16 @@ async function loadEverything() {
                     $('.self-timer').addClass("active")
                     $('.enemy-timer').removeClass("active")
                 }
+
+
+                if (player_color == 'white') {
+                    $('.captured-pieces.self p span').addClass('captured-black');
+                    $('.captured-pieces.enemy p span').addClass('captured-white')
+                }
+                else {
+                    $('.captured-pieces.self p span').addClass('captured-white');
+                    $('.captured-pieces.enemy p span').addClass('captured-black')
+                }
             })
             // res.text().then(color => {
             //     window.player_color = 'black'
@@ -109,7 +119,6 @@ requestAnimationFrame(() => {
     screen.drawBoard();
 
 })
-
 
 
 

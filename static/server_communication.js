@@ -18,6 +18,7 @@ class ServerCommunication {
             this.handleTurnChange(data);
             this.updateBoardHistory(data);
             this.handleMovementAudio(data);
+            hud.updateCapturedPieces();
         }
     }
 

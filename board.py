@@ -37,6 +37,7 @@ class BoardInfo:
         self.time_up = False
         self.clock_is_running = False
         self.timer = {}
+        self.captured_pieces = []
 
     def get_state(self):
         state = {
@@ -59,6 +60,7 @@ class BoardInfo:
                 'white': self.timer['white'],
                 'black': self.timer['black']
             },
+            'captured_pieces': self.captured_pieces
         }
         return state
 
@@ -75,6 +77,7 @@ class BoardInfo:
         self.game_over = True
         self.game_started = False
         self.time_up = False
+        self.captured_pieces = []
 
 
 class BoardEvents:
@@ -124,6 +127,8 @@ class BoardEvents:
             raise ValueError("Can't move outside your turn")
 
         self.remove_en_passant_tag()
+        if target_piece:
+            self.board.info.captured_pieces.append({'color': target_piece.COLOR ,'name': target_piece.NAME})
         origin_piece.move(x2, y2)
         self.change_turn()
         self.board.update_board()
@@ -187,7 +192,7 @@ class Board:
             elif origin_piece.NAME == 'king':
                 movement = '&#9818;'
             else:
-                movement = ''
+                movement = ''   
         else:
             if origin_piece.NAME == 'knight':
                 movement = '&#9816;'
