@@ -1,3 +1,4 @@
+import time
 import threading
 import json
 from flask import Flask, render_template, jsonify, request, redirect, url_for
@@ -76,15 +77,21 @@ def reset_board():
 @app.route('/api/changes', methods=['GET', 'POST'])
 def detect_changes():
     # print(players[request.remote_addr])
-    players[request.remote_addr].connection_health = 100
-    players[request.remote_addr].connected = True
+    player = players.get(request.remote_addr)
+    if not player:
+        return 'Observer'
+    player.connection_health = 100
+    player.connected = True
     return jsonify(board.info.get_state())
 
 
 @app.route('/api/GET/color')
 def get_color():
     ip = request.remote_addr
-    return players[ip].color
+    if players.get(ip):
+        return players[ip].color
+    else:
+        return 'Observer has no color'
 
 
 @app.route('/api/play')
@@ -92,6 +99,14 @@ def play_game():
     minutes = int(request.args.get('minutes'))
     board.set_timer(minutes)
     board.info.game_over = False
+    board.info.game_started = True
+
+    return 'success'
+
+
+@app.route('/api/computer')
+def play_computer():
+    board.info.against_computer = True
     board.info.game_started = True
 
     return 'success'
@@ -119,11 +134,13 @@ def clock():
         time.sleep(0.1)
 
         for player in players:
-            players[player].connection_health -= 1
+            # players[player].connection_health -= 1
+            players.get(player).connection_health -= 1
+            # print(players.get(player).connection_health)
 
             # print(players[player].connection_health )
-            if players[player].connection_health == 0:
-                players[player].connected = False
+            if players.get(player).connection_health == 0:
+                players.get(player).connected = False
 
         if not board.info.game_over:
             board.info.timer[board.info.current_turn] -= 0.1

@@ -19,7 +19,7 @@ class HUD {
         })
         $('.against-computer').on('click', () => {
             this.changeToScreen();
-            fetch(`/api/play?minutes=60`)
+            fetch(`/api/computer`)
         })
 
         $('.time').on('click', (e) => {
@@ -81,8 +81,8 @@ class HUD {
         })
 
         if (connections.length == 1) {
-            $('.player-one-connection').addClass("connected");
-            $('.player-two-connection').removeClass("connected");
+            $('.player-one-connection .connection-circle').addClass("connected");
+            $('.player-two-connection .connection-circle').removeClass("connected");
 
             if (data.game_started == false) {
                 // $('.screen-wrapper').show();
@@ -90,8 +90,8 @@ class HUD {
             }
         }
         else if (connections.length == 2) {
-            $('.player-one-connection').addClass("connected");
-            $('.player-two-connection').addClass("connected");
+            $('.player-one-connection .connection-circle').addClass("connected");
+            $('.player-two-connection .connection-circle').addClass("connected");
 
             if (this.current_screen == 'connection-status' && data.game_started == false) {
                 setTimeout(() => {
@@ -101,15 +101,20 @@ class HUD {
 
         }
         else {
-            $('.player-one-connection').removeClass("connected");
-            $('.player-two-connection').removeClass("connected");
+            $('.player-one-connection .connection-circle').removeClass("connected");
+            $('.player-two-connection .connection-circle').removeClass("connected");
         }
     }
 
     rematch() {
         this.resetBoard();
-        this.changeToScreen();
-        audio.game_start.play()
+        if (server_comm.server_info.against_computer){
+            this.changeToScreen('start-screen');
+        }
+        else {
+            this.changeToScreen();
+            audio.game_start.play()
+        }
         server_comm.time_up_handled = false;
         server_comm.tenseconds_warning_played = false;
         mouse.activateControllers();

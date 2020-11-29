@@ -81,13 +81,15 @@ canvas {
 
 .reset-container {
     position: absolute;
-    top: 0;
-    left: 300px;
+    top: 340px;
+    right: -110px;
     text-align: center;
     margin: auto; 
 }
 
 #reset {
+    height: 100px;
+    width: 100px;
     margin: auto;
 }
 
@@ -222,8 +224,16 @@ canvas {
 .connection-status {
     display: none;
     /* background-color: black; */
-    width: 200px;
+    /* width: 200px; */
     height: 100px;
+    margin: auto;
+    text-align: center;
+}
+
+.connection-status > p {
+    padding: 2em 0 2em 0;
+    color: white;
+    font-size: 30px;
 }
 
 .count-down {
@@ -232,11 +242,33 @@ canvas {
     color: white;
 }
 
+.player-one-connection-wrapper, .player-two-connection-wrapper{
+    width: 60%;
+    margin: auto;
+    text-align: center;
+}
+
 .player-one-connection, .player-two-connection{
-    float: left;
+    margin: auto;
+    color: white;
+    font-size: 20px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    display: flex;
+    justify-content: space-around;
+    /* float: left; */
+}
+
+.player-one-connection > p, .player-two-connection > p {
+    text-align: left;
+    grid-column: 2 / 6;
+}
+
+.connection-circle {
+    /* align-self: center; */
+    grid-column: 1;
     background-color: black;
-    width: 50px;
-    height: 50px;
+    width: 25px;
+    height: 25px;
     border-radius: 100%;
 }
 

@@ -10,7 +10,17 @@ class ServerCommunication {
             this.handlePlayerMove(this.server_info);
             hud.handlePlayerConnection();
         })
+
+        fetch(`/api/changes`).then((res) => res.json()
+            .then(data => {
+                hud.changeToScreen('connection-status');
+                // if (!data.game_started) {
+                //     hud.changeToScreen('start-screen');
+                // }
+            })
+        )
     }
+
 
     handlePlayerMove(data) {
         if (!data) return;
@@ -88,7 +98,7 @@ class ServerCommunication {
             .then(data => {
                 this.server_info = data;
 
-                
+
             })
         )
     }

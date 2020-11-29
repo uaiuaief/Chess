@@ -1,3 +1,4 @@
-from flask import jsonify
 
-a = {'a': 1, '2': 2}
+a = {'a': 1, 'b': 2}
+
+print(a.get('b'))

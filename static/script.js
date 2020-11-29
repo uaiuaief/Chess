@@ -110,6 +110,10 @@ function loadSprites() {
 loop.addFunction(() => server_comm.detectChanges());
 loop.run()
 
+window.onload = () => {
+    // console.log(server_comm.server_info);
+}
+
 // setInterval(() => {
 //     server_comm.detectChanges()
 

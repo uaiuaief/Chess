@@ -1,5 +1,5 @@
-import datetime, time
 from pieces import *
+from sunfish import ai_make_move, api_move, ai
 
 CHAR_REP = {
     'a': 0, 'b': 1, 'c': 2, 'd': 3,
@@ -10,9 +10,20 @@ CHAR_REP = {
 }
 
 
+def index_to_chess_notation(entry):
+    x, y = entry
+    column = CHAR_REP[str(x)]
+    row = 8 - int(y)
+
+    notation = f'{column}{str(row)}'
+    print(notation)
+    return notation
+
+
 def convert_to_index(entry):
     char, num = list(entry)
     row = int(num)-1
+    row = 7 - row
     column = CHAR_REP[char.lower()]
 
     return column, row
@@ -38,6 +49,7 @@ class BoardInfo:
         self.clock_is_running = False
         self.timer = {}
         self.captured_pieces = []
+        self.against_computer = False
 
     def get_state(self):
         state = {
@@ -60,7 +72,8 @@ class BoardInfo:
                 'white': self.timer['white'],
                 'black': self.timer['black']
             },
-            'captured_pieces': self.captured_pieces
+            'captured_pieces': self.captured_pieces,
+            'against_computer': self.against_computer,
         }
         return state
 
@@ -78,6 +91,7 @@ class BoardInfo:
         self.game_started = False
         self.time_up = False
         self.captured_pieces = []
+        self.against_computer = False
 
 
 class BoardEvents:
@@ -119,17 +133,26 @@ class BoardEvents:
         if not move_is_allowed:
             raise ValueError('Movement is Not Allowed')
 
-        print(player.ip, player.color)
-        # is_your_turn = self.board.info.current_turn == origin_piece.COLOR == player.color
-        is_your_turn = self.board.info.current_turn == origin_piece.COLOR
-        # is_your_turn = True
+        # print(player.ip, player.color)
+
+        if self.board.info.against_computer:
+            if player != 'computer':
+                is_your_turn = self.board.info.current_turn == origin_piece.COLOR == 'white'
+            else:
+                is_your_turn = True
+        else:
+            # is_your_turn = self.board.info.current_turn == origin_piece.COLOR
+            # is_your_turn = self.board.info.current_turn == origin_piece.COLOR == player.color
+            is_your_turn = True
+
         if not is_your_turn:
             raise ValueError("Can't move outside your turn")
 
         self.remove_en_passant_tag()
         if target_piece:
-            self.board.info.captured_pieces.append({'color': target_piece.COLOR ,'name': target_piece.NAME})
+            self.board.info.captured_pieces.append({'color': target_piece.COLOR, 'name': target_piece.NAME})
         origin_piece.move(x2, y2)
+
         self.change_turn()
         self.board.update_board()
         self.board.update_move_history(origin_cell, origin_piece, target_cell, target_piece)
@@ -138,6 +161,10 @@ class BoardEvents:
         castle = origin_piece.NAME == 'king' and abs(x1 - x2) == 2
         self.board.info.last_movement_castle = True if castle else False
         self.board.info.last_movement = [[x1, y1], [x2, y2]]
+
+        if self.board.info.against_computer and self.board.info.current_turn == 'black':
+            api_move([x1, y1, x2, y2])
+            ai_make_move(self.board, 'computer')
 
     def remove_en_passant_tag(self):
         for piece in self.board.pieces:
@@ -192,7 +219,7 @@ class Board:
             elif origin_piece.NAME == 'king':
                 movement = '&#9818;'
             else:
-                movement = ''   
+                movement = ''
         else:
             if origin_piece.NAME == 'knight':
                 movement = '&#9816;'
@@ -322,6 +349,8 @@ class Board:
         self.info.reset()
         self.pieces = []
         self._setup_pieces()
+        ai.reset_ai()
+
 
     def check_mate(self):
         colors = ['white', 'black']
