@@ -31,6 +31,7 @@ canvas {
     width: 640px;
     height: 640px;
     background-color: rgba(0, 0, 0, .4);
+    z-index: 100;
     
 }
 
@@ -194,6 +195,7 @@ canvas {
     background-color: #312e2b;
     border: none;
     border-radius: 8px;
+    z-index: 101;
 }
 
 .play-button {
@@ -249,12 +251,12 @@ canvas {
 }
 
 .player-one-connection, .player-two-connection{
-    margin: auto;
+    /* margin: auto; */
     color: white;
     font-size: 20px;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
-    display: flex;
-    justify-content: space-around;
+    /* display: flex;
+    justify-content: space-around; */
     /* float: left; */
 }
 
@@ -265,15 +267,35 @@ canvas {
 
 .connection-circle {
     /* align-self: center; */
+    margin-right: 1em;
     grid-column: 1;
     background-color: black;
-    width: 25px;
-    height: 25px;
-    border-radius: 100%;
+    /* width: 25px;
+    height: 25px; */
+    /* border-radius: 100%; */
+    /* border: 1px solid black; */
 }
 
+.player-two-connection {
+    align-self: flex-end;
+    margin-right: .5em;
+}
+
+.player-one-connection{
+    align-self: flex-end;
+    margin-right: .5em;
+}
+
+.connection-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 1px;
+}
+
+
 .connected {
-    background-color: green;
+    filter: invert(23%) sepia(91%) saturate(3355%) hue-rotate(110deg) brightness(89%) contrast(105%);
+    /* background-color: green; */
 }
 
 .captured-pieces {
@@ -327,5 +349,15 @@ canvas {
         position: relative;
         grid-row: 1;
         grid-column: 2;
+    }
+
+    .screen-cover, .screen-wrapper {
+        z-index: 999;
+    }
+
+    .connection-icon {
+        width: 30px;
+        height: 30px;
+        margin-bottom: 1px;
     }
 }

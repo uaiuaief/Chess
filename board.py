@@ -121,6 +121,9 @@ class BoardEvents:
             raise ValueError("Piece can't be promoted")
 
     def move(self, origin_cell, target_cell, player):
+        if not self.board.info.game_started:
+            raise ValueError("Can't move before the game has started")
+
         x1, y1 = origin_cell
         x2, y2 = target_cell
         origin_piece = self.board.get_piece(x=x1, y=y1)
@@ -192,7 +195,7 @@ class Board:
         self.set_timer()
 
     def set_timer(self, minutes=15):
-        self.info.timer['white'] = minutes * 60
+        self.info.timer['white'] = minutes * 1
         self.info.timer['black'] = minutes * 60
 
     def get_piece(self, x, y):

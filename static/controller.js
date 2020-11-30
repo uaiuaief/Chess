@@ -155,7 +155,10 @@ class Controller {
 
             fetch('/api/changes').then(res => res.json()
                 .then(data => {
-                    if (data.check) {
+                    if (!data.game_started){
+                        audio.illegal.play()
+                    }
+                    else if (data.check) {
                         audio.move_check.play();
                     }
                     else if (skip_promotion) {

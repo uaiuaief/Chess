@@ -368,6 +368,8 @@ class Bishop(Piece):
         if king.attackers and len(king.attackers) > 1:
             possible_moves = []
         elif king.attackers:
+            # print('possible', possible_moves)
+            # print('defending', king.king_defending_moves)
             possible_moves = self.get_move_intersection(possible_moves, king.king_defending_moves)
 
         self.moves = possible_moves
@@ -502,7 +504,7 @@ class King(Piece):
                     defender.blocking_moves = move_list
 
             elif piece:
-                if 'knight' in piece_names and piece.COLOR != self.COLOR:
+                if 'knight' in piece_names and piece.COLOR != self.COLOR and piece.NAME == 'knight':
                     self.king_defending_moves = [[piece.x, piece.y]]
                 elif piece.COLOR == self.COLOR:
                     defender = piece

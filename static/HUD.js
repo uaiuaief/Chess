@@ -2,10 +2,14 @@ class HUD {
     constructor() {
         this.current_screen = null;
         this.countdown_active = false;
+        this.timer = null;
 
         $('#reset').on('click', () => {
             this.resetBoard()
             this.changeToScreen('start-screen');
+            this.timer = null;
+            $('.timer').text('-- : --')
+
         })
 
         $('.restart').on('click', () => hud.rematch())
@@ -15,7 +19,7 @@ class HUD {
         })
 
         $('.against-human').on('click', () => {
-            this.changeToScreen('connection-status');
+            this.changeToScreen('choose-time');
         })
         $('.against-computer').on('click', () => {
             this.changeToScreen();
@@ -23,7 +27,9 @@ class HUD {
         })
 
         $('.time').on('click', (e) => {
-            this.changeToScreen('count-down');
+            this.current_screen = null;
+            this.changeToScreen('waiting-opponent');
+            $('.screen-wrapper').hide();
             let minutes = e.target.name;
             hud.chooseTime(minutes)
         })
@@ -81,47 +87,52 @@ class HUD {
         })
 
         if (connections.length == 1) {
-            $('.player-one-connection .connection-circle').addClass("connected");
-            $('.player-two-connection .connection-circle').removeClass("connected");
+            $('.player-one-connection .connection-icon').addClass("connected");
+            $('.player-two-connection .connection-icon').removeClass("connected");
 
             if (data.game_started == false) {
                 // $('.screen-wrapper').show();
-                // $('.screen-cover').show();
+                $('.screen-cover').show();
             }
         }
         else if (connections.length == 2) {
-            $('.player-one-connection .connection-circle').addClass("connected");
-            $('.player-two-connection .connection-circle').addClass("connected");
+            $('.player-one-connection .connection-icon').addClass("connected");
+            $('.player-two-connection .connection-icon').addClass("connected");
 
-            if (this.current_screen == 'connection-status' && data.game_started == false) {
-                setTimeout(() => {
-                    this.changeToScreen('choose-time');
-                }, 1000);
+            if (this.timer && !data.game_started && this.current_screen != 'choose-time') {
+                this.startGame(this.timer);
             }
-
         }
         else {
-            $('.player-one-connection .connection-circle').removeClass("connected");
-            $('.player-two-connection .connection-circle').removeClass("connected");
+            $('.player-one-connection .connection-icon').removeClass("connected");
+            $('.player-two-connection .connection-icon').removeClass("connected");
         }
     }
 
     rematch() {
         this.resetBoard();
-        if (server_comm.server_info.against_computer){
+
+        if (server_comm.server_info.against_computer) {
             this.changeToScreen('start-screen');
         }
         else {
-            this.changeToScreen();
+            this.timer == null;
+            this.changeToScreen('choose-time');
+            // console.log(this.timer);
+            // this.startGame();
             audio.game_start.play()
         }
         server_comm.time_up_handled = false;
         server_comm.tenseconds_warning_played = false;
+        server_comm.detectChanges();
         mouse.activateControllers();
+
     }
 
     chooseTime(minutes) {
-        this.startGame(minutes);
+        $('.timer').text(`${minutes}:00`)
+        // this.startGame(minutes);
+        this.timer = minutes;
     }
 
     countDown(seconds, callback) {
@@ -141,26 +152,7 @@ class HUD {
     startGame(minutes) {
         fetch(`/api/play?minutes=${minutes}`)
         // mouse.activateControllers();
-        this.countdown_active = true;
-        this.countDown(3, (seconds) => {
-            console.log(seconds);
-            let text = `Game starting in ${seconds}`
-            $('.count-down').text(text);
-        });
-
-
-        // for (let i = 3; i > 0; ){
-        //     setTimeout(() => {
-        //         console.log(i);
-        //         i--;
-        //         // let text = `Game starting in ${i}`
-        //         // $('.connection-status').text(text);
-        //     }, 1000);
-        // }
-        // $('.start-screen').hide();
-        // $('.connection-status').hide();
-        // $('.choose-time').show();
-
+        this.changeToScreen('');
         audio.game_start.play();
 
     }
@@ -248,7 +240,7 @@ class HUD {
 
         const compare_function = (a, b) => {
             let get_value = (name) => {
-                if (name == 'pawn') return 0; 
+                if (name == 'pawn') return 0;
                 else if (name == 'bishop') return 1;
                 else if (name == 'knight') return 2;
                 else if (name == 'rook') return 3;
@@ -273,7 +265,7 @@ class HUD {
 
         captured_white.forEach(name => this.addToCapturedPieces('white', name));
         captured_black.forEach(name => this.addToCapturedPieces('black', name));
-            // console.log(name);
+        // console.log(name);
         //     let chess_code = this.getChessCode('black', name)
         //     if (player_color == 'white') {
         //         if (name == 'pawn') {
@@ -317,6 +309,8 @@ class HUD {
     }
 
     decreaseClockTime(data) {
+        if (!data.game_started) return;
+
         let player_date = new Date(0);
         player_date.setSeconds(data.timer[player_color]);
         var player_timer = player_date.toISOString().substr(14, 5);

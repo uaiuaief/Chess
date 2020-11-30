@@ -13,10 +13,7 @@ class ServerCommunication {
 
         fetch(`/api/changes`).then((res) => res.json()
             .then(data => {
-                hud.changeToScreen('connection-status');
-                // if (!data.game_started) {
-                //     hud.changeToScreen('start-screen');
-                // }
+                // hud.changeToScreen('connection-status');
             })
         )
     }
@@ -34,7 +31,10 @@ class ServerCommunication {
 
     handleMovementAudio(data) {
         if (turn == player_color) {
-            if (data.last_movement_castle) {
+            if (!data.game_started) {
+
+            }
+            else if (data.last_movement_castle) {
                 audio.castle.play();
             }
             else if (data.check) {
@@ -97,6 +97,17 @@ class ServerCommunication {
         fetch(`/api/changes`).then((res) => res.json()
             .then(data => {
                 this.server_info = data;
+                // console.log(hud.current_screen);
+                if (!hud.current_screen && !data.game_started) {
+                    if (player_color == 'white') {
+                        console.log('muhahah');
+                        hud.changeToScreen('start-screen');
+                    }
+                    $('.screen-cover').show();
+                }
+                else if (!hud.current_screen && data.game_started){
+                    $('.screen-cover').hide();
+                }
 
 
             })

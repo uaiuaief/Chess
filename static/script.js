@@ -74,6 +74,7 @@ async function loadEverything() {
                     $('.captured-pieces.self p span').addClass('captured-white');
                     $('.captured-pieces.enemy p span').addClass('captured-black')
                 }
+
             })
             // res.text().then(color => {
             //     window.player_color = 'black'

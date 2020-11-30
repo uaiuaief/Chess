@@ -133,6 +133,9 @@ def clock():
     while True:
         time.sleep(0.1)
 
+        if board.info.against_computer:
+            continue
+
         for player in players:
             # players[player].connection_health -= 1
             players.get(player).connection_health -= 1
