@@ -83,14 +83,12 @@ canvas {
 .reset-container {
     position: absolute;
     top: 340px;
-    right: -110px;
+    right: -150px;
     text-align: center;
     margin: auto; 
 }
 
 #reset {
-    height: 100px;
-    width: 100px;
     margin: auto;
 }
 
@@ -118,7 +116,8 @@ canvas {
 }
 
 .end-screen-wrapper {
-    margin-top: 1em;
+    margin: auto;
+    margin-top: 2em;
 }
 
 .button {
@@ -164,14 +163,17 @@ canvas {
 }
 
 .timer {
+    font-family: 'Courier New', Courier, monospace;
     font-size: 28px;
     color: #dddddd;
-    width: 80px;
-    padding: .2em .5em .2em .5em;
+    min-width: 80px;
+    /* padding: .2em .5em .2em .5em; */
+    padding: .21em .5em .1em .4em;
     margin: .2em 0;
     text-align: center;
     border-radius: 5px;
     border: 1px solid gray;
+    white-space: nowrap;
 }
 
 .active {
@@ -205,8 +207,15 @@ canvas {
 }
 
 .choose-game-type {
+    margin-top: 3.7em;
     display: none;
     text-align: center;
+}
+
+.choose-game-type button {
+    width: 180px;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .choose-time {
@@ -242,6 +251,41 @@ canvas {
     display: none;
     font-size: 30px;
     color: white;
+}
+
+.info-button {
+    padding: .5em .5em 0 .5em;
+    font-size: 20px;
+    align-self: center;
+    border: #888;
+    border-radius: 5px;
+    align-content: center;
+    background-color: #111;
+    color: #dddddd;
+    height: 45px;
+    margin-right: .3em;
+}
+
+.new-game {
+    white-space: pre;
+    padding-bottom: .5em;
+}
+
+.resign {
+    white-space: pre;
+    display: flex;
+    /* background-color: #222; */
+    border: none;
+    margin-right: .4em;
+}
+
+.resign img {
+    height: 23px;
+}
+
+.info-button:hover {
+    background-color: #444;
+    cursor: pointer;
 }
 
 .player-one-connection-wrapper, .player-two-connection-wrapper{

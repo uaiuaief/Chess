@@ -1,11 +1,13 @@
 class ServerCommunication {
     constructor() {
         this.time_up_handled = false;
+        this.resignation_handled = false;
         this.tenseconds_warning_played = false;
         this.server_info = null;
 
         window.loop.addFunction(() => {
             this.handleTimeUp(this.server_info);
+            this.handleResignation(this.server_info);
             this.handleTimer(this.server_info);
             this.handlePlayerMove(this.server_info);
             hud.handlePlayerConnection();
@@ -13,7 +15,7 @@ class ServerCommunication {
 
         fetch(`/api/changes`).then((res) => res.json()
             .then(data => {
-                // hud.changeToScreen('connection-status');
+                this.server_info = data;
             })
         )
     }
@@ -63,6 +65,14 @@ class ServerCommunication {
         }
     }
 
+    handleResignation(data) {
+        if (!data) return;
+        if (data.resignation && !this.resignation_handled) {
+            hud.showResignationScreen(data);
+            this.resignation_handled = true;
+        }
+    }
+
     handleTimeUp(data) {
         if (!data) return;
         if (data.time_up && !this.time_up_handled) {
@@ -97,18 +107,6 @@ class ServerCommunication {
         fetch(`/api/changes`).then((res) => res.json()
             .then(data => {
                 this.server_info = data;
-                // console.log(hud.current_screen);
-                if (!hud.current_screen && !data.game_started) {
-                    if (player_color == 'white') {
-                        console.log('muhahah');
-                        hud.changeToScreen('start-screen');
-                    }
-                    $('.screen-cover').show();
-                }
-                else if (!hud.current_screen && data.game_started){
-                    $('.screen-cover').hide();
-                }
-
 
             })
         )

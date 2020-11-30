@@ -18,7 +18,7 @@
             <div class="player-two-connection">
                 <img class="connection-icon" src="/static/icons/full-signal.svg" alt="">
             </div>
-            <div class="timer enemy-timer">-- : --</div>
+            <div class="timer enemy-timer">--:--</div>
         </div>
         <div class="canvas-container">
             <div class="move-history">
@@ -64,8 +64,6 @@
                 </div>
 
             </div>
-
-
             <div class="promote white">
                 <div class="promotion white-queen">
                     <img src="static/icons/white_queen.svg" name="queen" alt="">
@@ -99,13 +97,15 @@
             <div class="captured-pieces self">
                 <p><span class="pawn"></span><span class="others"></span></p>
             </div>
+            <button class="info-button new-game">+ New</button>
+            <button class="info-button resign">
+                <img src="/static/icons/white-flag.svg" alt="">
+                <p> Resign </p>
+            </button>
             <div class="player-one-connection">
                 <img class="connection-icon" src="/static/icons/full-signal.svg" alt="">
             </div>
-            <div class="timer self-timer">-- : --</div>
-        </div>
-        <div class="reset-container">
-            <button id="reset">Reset</button>
+            <div class="timer self-timer">--:--</div>
         </div>
     </div>
     <script type="module" src="static/script.js"></script>

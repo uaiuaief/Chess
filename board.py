@@ -44,6 +44,7 @@ class BoardInfo:
         self.winner = None
         self.check_mate = False
         self.game_over = True
+        self.resignation = False
         self.game_started = False
         self.time_up = False
         self.clock_is_running = False
@@ -65,6 +66,7 @@ class BoardInfo:
             'check_mate': self.check_mate,
             'winner': self.winner,
             'game_over': self.game_over,
+            'resignation': self.resignation,
             'game_started': self.game_started,
             'time_up': self.time_up,
             'clock_is_running': self.clock_is_running,
@@ -88,6 +90,7 @@ class BoardInfo:
         self.winner = None
         self.check_mate = False
         self.game_over = True
+        self.resignation = False
         self.game_started = False
         self.time_up = False
         self.captured_pieces = []
@@ -195,7 +198,7 @@ class Board:
         self.set_timer()
 
     def set_timer(self, minutes=15):
-        self.info.timer['white'] = minutes * 1
+        self.info.timer['white'] = minutes * 60
         self.info.timer['black'] = minutes * 60
 
     def get_piece(self, x, y):
@@ -354,7 +357,6 @@ class Board:
         self._setup_pieces()
         ai.reset_ai()
 
-
     def check_mate(self):
         colors = ['white', 'black']
 
@@ -367,7 +369,7 @@ class Board:
             if not moves:
                 winner = 'white' if color == 'black' else 'black'
                 self.info.game_over = True
-
+                self.info.game_started = False
                 self.info.check_mate = True
                 self.info.winner = winner
 

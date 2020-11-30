@@ -112,6 +112,18 @@ def play_computer():
     return 'success'
 
 
+@app.route('/api/resign')
+def resign():
+    ip = request.remote_addr
+    loser = players.get(ip).color
+    if not board.info.resignation:
+        board.info.game_started = False
+        board.info.game_over = True
+        board.info.resignation = loser
+
+    return 'ok'
+
+
 def connect():
     ip = request.remote_addr
 
@@ -151,6 +163,8 @@ def clock():
             if board.info.timer[board.info.current_turn] <= 0:
                 board.info.time_up = 'white' if board.info.current_turn == 'black' else 'black'
                 board.info.game_over = True
+                board.info.game_started = False
+
 
 
 def start_clock():

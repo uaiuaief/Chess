@@ -46,6 +46,10 @@ window.enemy_color = null;
 window.turn = 'white';
 window.last_movement = null;
 
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
 async function loadEverything() {
     window.board_state = fetch('/api/GET/board')
     window.board = new Board();
@@ -69,13 +73,24 @@ async function loadEverything() {
                 if (player_color == 'white') {
                     $('.captured-pieces.self p span').addClass('captured-black');
                     $('.captured-pieces.enemy p span').addClass('captured-white')
+                    
+                    if (!server_comm.server_info.game_started){
+                        hud.changeToScreen('start-screen');
+                    }
                 }
                 else {
+                    $('.new-game').hide();
                     $('.captured-pieces.self p span').addClass('captured-white');
                     $('.captured-pieces.enemy p span').addClass('captured-black')
+
+
+                    if (!server_comm.server_info.game_started){
+                        $('.screen-cover').show();
+                    }
                 }
 
             })
+            // DEBUGGING
             // res.text().then(color => {
             //     window.player_color = 'black'
             //     // enemy_color = color == 'white' ? 'black' : 'white'
@@ -111,14 +126,6 @@ function loadSprites() {
 loop.addFunction(() => server_comm.detectChanges());
 loop.run()
 
-window.onload = () => {
-    // console.log(server_comm.server_info);
-}
-
-// setInterval(() => {
-//     server_comm.detectChanges()
-
-// }, 1000);
 
 requestAnimationFrame(() => {
     screen.drawBoard();

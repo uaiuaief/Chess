@@ -4,11 +4,16 @@ class HUD {
         this.countdown_active = false;
         this.timer = null;
 
-        $('#reset').on('click', () => {
+        $('.resign').on('click', () => {
+            this.resign();
+        })
+
+        $('.new-game').on('click', () => {
             this.resetBoard()
             this.changeToScreen('start-screen');
+            server_comm.detectChanges();
             this.timer = null;
-            $('.timer').text('-- : --')
+            $('.timer').text('--:--')
 
         })
 
@@ -24,6 +29,7 @@ class HUD {
         $('.against-computer').on('click', () => {
             this.changeToScreen();
             fetch(`/api/computer`)
+            $('.timer').text('--:--')
         })
 
         $('.time').on('click', (e) => {
@@ -33,6 +39,14 @@ class HUD {
             let minutes = e.target.name;
             hud.chooseTime(minutes)
         })
+    }
+
+    resign(){
+        let data = server_comm.server_info;
+        if (data.game_started) {
+            fetch('/api/resign').then(() => server_comm.detectChanges());
+            this.showResignationScreen(data);
+        }
     }
 
     changeToScreen(screen) {
@@ -65,7 +79,6 @@ class HUD {
     }
 
     resetBoard() {
-        // console.log(server_comm.server_info);
         fetch('/api/reset').then(() => {
             server_comm.getBoard();
         })
@@ -81,7 +94,6 @@ class HUD {
         let data = server_comm.server_info
         if (!data) return;
 
-        // console.log(this.current_screen);
         let connections = data.players.filter(player => {
             if (player.connected) return true;
         })
@@ -90,17 +102,21 @@ class HUD {
             $('.player-one-connection .connection-icon').addClass("connected");
             $('.player-two-connection .connection-icon').removeClass("connected");
 
-            if (data.game_started == false) {
-                // $('.screen-wrapper').show();
-                $('.screen-cover').show();
-            }
         }
         else if (connections.length == 2) {
             $('.player-one-connection .connection-icon').addClass("connected");
             $('.player-two-connection .connection-icon').addClass("connected");
 
-            if (this.timer && !data.game_started && this.current_screen != 'choose-time') {
+            if (this.timer && !data.game_started && this.current_screen == 'waiting-opponent') {
                 this.startGame(this.timer);
+            }
+            else if (data.game_started) {
+                hud.changeToScreen('');
+                server_comm.resignation_handled = false;
+                server_comm.time_up_handled = false;
+            }
+            else if (!data.game_started && player_color == "black") {
+                $('.screen-cover').show();
             }
         }
         else {
@@ -118,11 +134,10 @@ class HUD {
         else {
             this.timer == null;
             this.changeToScreen('choose-time');
-            // console.log(this.timer);
-            // this.startGame();
             audio.game_start.play()
         }
         server_comm.time_up_handled = false;
+        server_comm.resignation_handled = false;
         server_comm.tenseconds_warning_played = false;
         server_comm.detectChanges();
         mouse.activateControllers();
@@ -130,8 +145,8 @@ class HUD {
     }
 
     chooseTime(minutes) {
+        minutes = ('0'+minutes).slice(-2);
         $('.timer').text(`${minutes}:00`)
-        // this.startGame(minutes);
         this.timer = minutes;
     }
 
@@ -153,13 +168,15 @@ class HUD {
         fetch(`/api/play?minutes=${minutes}`)
         // mouse.activateControllers();
         this.changeToScreen('');
+        server_comm.resignation_handled = false;
+        server_comm.time_up_handled = false;
         audio.game_start.play();
 
     }
 
     showCheckMateScreen(data) {
         $('.end-game-text').text('Check Mate')
-        $('.winner').text(`${data.winner} wins`)
+        $('.winner').text(`${data.winner.capitalize()} wins`)
         this.changeToScreen('check-mate');
         audio.game_end.play();
         // mouse.deactivateControllers();
@@ -168,7 +185,14 @@ class HUD {
 
     showTimeUpScreen(data) {
         $('.end-game-text').text(`Time's up`)
-        $('.winner').text(`${data.time_up} wins`)
+        $('.winner').text(`${data.time_up.capitalize()} wins`)
+        this.changeToScreen('check-mate');
+        audio.game_end.play();
+    }
+
+    showResignationScreen(data){
+        $('.end-game-text').text('Game Over')
+        $('.winner').text(`${data.resignation.capitalize()} resigns`)
         this.changeToScreen('check-mate');
         audio.game_end.play();
     }
@@ -319,8 +343,13 @@ class HUD {
         enemy_date.setSeconds(data.timer[enemy_color]);
         var enemy_timer = enemy_date.toISOString().substr(14, 5);
 
-        $('.self-timer').text(player_timer)
-        $('.enemy-timer').text(enemy_timer)
+        if (data.against_computer) {
+            $('.timer').text('--:--');
+        }
+        else {
+            $('.self-timer').text(player_timer)
+            $('.enemy-timer').text(enemy_timer)
+        }
 
     }
 }

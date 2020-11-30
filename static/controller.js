@@ -108,13 +108,13 @@ class Controller {
     }
 
     async move(ox, oy, tx, ty, skip_promotion = false) {
-        // if (turn != player_color) {
-        //     this.selected_square = null;
-        //     this.dragged_piece = null; 
-        //     server_comm.getBoard()
-        //     this.first_click = this.second_click = null
-        //     return
-        // }
+        if (turn != player_color) {
+            this.selected_square = null;
+            this.dragged_piece = null; 
+            server_comm.getBoard()
+            this.first_click = this.second_click = null
+            return
+        }
 
         if (!skip_promotion) {
             [ox, oy] = this.invertIfBlack(ox, oy);
