@@ -148,8 +148,8 @@ class BoardEvents:
                 is_your_turn = True
         else:
             # is_your_turn = self.board.info.current_turn == origin_piece.COLOR
-            # is_your_turn = self.board.info.current_turn == origin_piece.COLOR == player.color
-            is_your_turn = True
+            is_your_turn = self.board.info.current_turn == origin_piece.COLOR == player.color
+            # is_your_turn = True
 
         if not is_your_turn:
             raise ValueError("Can't move outside your turn")
