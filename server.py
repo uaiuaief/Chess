@@ -141,21 +141,32 @@ def connect():
         return 'lobby is full'
 
 
+def remove_disconnected_players():
+    to_disconnect = []
+    for player in players:
+        if players.get(player).connection_health <= -200:
+            to_disconnect.append(player)
+    for player in to_disconnect:
+        board.info.game_over = True
+        board.info.game_started = False
+        board.info.resignation = players.get(player).color
+        del players[player]
+
+
 def clock():
     while True:
         time.sleep(0.1)
 
         if board.info.against_computer:
             continue
-
+        
         for player in players:
-            # players[player].connection_health -= 1
             players.get(player).connection_health -= 1
-            # print(players.get(player).connection_health)
 
-            # print(players[player].connection_health )
             if players.get(player).connection_health == 0:
                 players.get(player).connected = False
+
+        remove_disconnected_players() 
 
         if not board.info.game_over:
             board.info.timer[board.info.current_turn] -= 0.1
@@ -176,4 +187,4 @@ def start_clock():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port='5500', host='0.0.0.0')
+    app.run(debug=False, port='80', host='0.0.0.0')
