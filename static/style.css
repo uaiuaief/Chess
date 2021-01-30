@@ -10,6 +10,10 @@ body {
 #background-canvas {
 }
 
+img {
+    pointer-events: none !important;
+}
+
 canvas {
     /* border:1px solid #000000; */
     grid-column: 2;
